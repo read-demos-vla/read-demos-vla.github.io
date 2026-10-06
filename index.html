@@ -543,9 +543,9 @@ footer{padding:70px 20px 50px}
     <p>On ten held-out LIBERO-Gen tasks, which pair familiar pick-up places and destinations in new ways, READ reaches 92.8% from
       five demonstrations; a LoRA fine-tuned on each task with all 36–49 of its demonstrations reaches 92.5%. The scene has two
       identical black bowls, so an instruction must say which bowl to move and where to put it.</p>
-    <p>Against the same policy without demonstrations (the multi-task LoRA, 85.5%), the gap is largest on the task whose instruction
-      gives both places relative to other objects: READ 98.8%, multi-task LoRA 54.0%.</p>
-    <p style="margin-bottom:10px"><span class="instr">pick up the black bowl next to the cookie box and place it in the black bowl next to the ramekin</span></p>
+    <p>Against the same policy without demonstrations (the multi-task LoRA, 85.5%), READ is close on most of the ten tasks and
+      helps most on the one whose instruction gives both places relative to other objects, “pick up the black bowl next to the
+      cookie box and place it in the black bowl next to the ramekin” (T2 in the chart below): 98.8% vs 54.0%.</p>
   </div>
   <div class="prose" style="margin-top:30px">
     <div class="tscroll"><table>
