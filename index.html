@@ -1,0 +1,730 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Anonymous review page: keep noindex until the de-anonymised version replaces it. -->
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<title>READ: Teaching a VLA by Demonstration</title>
+<meta name="description" content="READ adapts a pretrained vision-language-action policy from five demonstrations without updating its parameters.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap">
+<style>
+:root{
+  --paper:#f6f5f0; --ink:#1a1a18; --body:#2b2b28; --muted:#6f6e68; --faint:#a3a19a; --rule:#dedcd3; --wash:#ecebe4;
+  --accent:#d9731f; --read:#2f62d8; --goal:#2e9b57; --goal-soft:rgba(46,155,87,.16); --start:#e98c34;
+  --carry:#8a3fb0; --reach:#c08a00; --nodemo:#9aa3ad; --plate:#ffffff;
+  --t-pair:#1d3557; --t-pairing:#2f62d8; --t-object:#0e7a64; --t-dir:#b4492f;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#141412; --ink:#efede6; --body:#d9d7cf; --muted:#9b9a92; --faint:#6c6b65; --rule:#2e2d29; --wash:#1d1c19;
+    --accent:#f0a257; --read:#7096f0; --goal:#49c27a; --goal-soft:rgba(73,194,122,.18); --start:#f0a257;
+    --carry:#c58ae6; --reach:#e2b23a; --nodemo:#6d7782; --plate:#ffffff;
+    --t-pair:#8fb0de; --t-pairing:#7096f0; --t-object:#4cc3a0; --t-dir:#ef8a6f;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#141412; --ink:#efede6; --body:#d9d7cf; --muted:#9b9a92; --faint:#6c6b65; --rule:#2e2d29; --wash:#1d1c19;
+  --accent:#f0a257; --read:#7096f0; --goal:#49c27a; --goal-soft:rgba(73,194,122,.18); --start:#f0a257;
+  --carry:#c58ae6; --reach:#e2b23a; --nodemo:#6d7782; --plate:#ffffff;
+  --t-pair:#8fb0de; --t-pairing:#7096f0; --t-object:#4cc3a0; --t-dir:#ef8a6f;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--body);font:400 18px/1.65 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+.prose,.wide,.full{margin-left:auto;margin-right:auto;padding-left:20px;padding-right:20px}
+.prose{max-width:760px}
+.wide{max-width:1160px}
+h1,h2,h3{font-family:Newsreader,Georgia,serif;font-weight:400;color:var(--ink);letter-spacing:-.005em;text-wrap:balance}
+h1{font-size:clamp(34px,5.2vw,58px);line-height:1.08;margin:0 0 22px}
+h2{font-size:clamp(27px,3.4vw,38px);line-height:1.15;margin:0 0 14px}
+h3{font-size:23px;line-height:1.25;margin:36px 0 8px}
+p{margin:0 0 16px}
+b,strong{font-weight:600;color:var(--ink)}
+a{color:inherit;text-decoration-color:var(--faint);text-underline-offset:3px}
+.mono{font-family:"JetBrains Mono",ui-monospace,monospace}
+.cap{font-size:14.5px;line-height:1.5;color:var(--muted);margin-top:10px}
+.cap b{color:var(--body);font-weight:600}
+.lead{font-size:21px;line-height:1.55;color:var(--ink)}
+.instr{display:inline-block;background:#f9d65c;color:#1a1a18;font-weight:500;padding:0 7px;border-radius:3px;font-size:.92em;line-height:1.5}
+/* masthead */
+.top{display:flex;justify-content:space-between;align-items:baseline;padding-top:26px;padding-bottom:58px;font-size:14px;color:var(--muted)}
+.top .brand{font-family:Newsreader,Georgia,serif;font-size:20px;color:var(--ink)}
+.top nav a{margin-left:18px;text-decoration:none;color:var(--muted)}
+.top nav a:hover{color:var(--ink)}
+.meta{display:grid;grid-template-columns:max-content 1fr;gap:2px 22px;font:400 13px/1.6 "JetBrains Mono",ui-monospace,monospace;color:var(--muted);margin:0 0 36px}
+.meta span:nth-child(odd){color:var(--faint)}
+/* hero */
+.hero{margin:0 auto 18px;max-width:1240px;padding:0 20px}
+.hero video{width:100%;display:block;border-radius:6px;background:#121212;aspect-ratio:16/9}
+/* sections */
+section{padding-top:84px}
+.sec-n{font:400 14px/1 "JetBrains Mono",ui-monospace,monospace;color:var(--faint);display:block;margin-bottom:12px}
+hr.rule{border:0;border-top:1px solid var(--rule);margin:0}
+/* sticky toc */
+.toc{display:none}
+@media (min-width:1400px){
+  .toc{display:block;position:fixed;left:28px;top:120px;width:190px;font-size:13.5px;line-height:1.5}
+  .toc a{display:block;color:var(--faint);text-decoration:none;padding:3px 0 3px 12px;border-left:1px solid var(--rule)}
+  .toc a.on{color:var(--ink);border-left-color:var(--ink)}
+}
+/* text tabs (Generalist-style) */
+.tabs{display:flex;flex-wrap:wrap;gap:4px 22px;font-size:15px;margin:6px 0 16px}
+.tabs button{font:inherit;border:0;background:none;padding:2px 0;color:var(--faint);cursor:pointer;border-bottom:1.5px solid transparent}
+.tabs button[aria-pressed="true"]{color:var(--ink);border-bottom-color:var(--ink)}
+.tabs button:focus-visible{outline:2px solid var(--read);outline-offset:3px}
+/* definition callout (BPP-style) */
+.def{border-left:2px solid var(--ink);padding:2px 0 2px 18px;margin:24px 0}
+.def .term{font-family:Newsreader,Georgia,serif;font-size:21px;color:var(--ink);margin-bottom:2px}
+.def p{margin:0;font-size:16.5px;color:var(--body)}
+/* generic video tile */
+.vbox{position:relative;width:100%;aspect-ratio:4/3;background:#1a1a18;border-radius:3px;overflow:hidden}
+.vbox video{position:absolute;inset:0;width:100%;height:100%;display:block;object-fit:cover}
+.vbox svg.ov{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.vbox .tag{position:absolute;left:8px;top:8px;font:500 12px/1.4 Inter,sans-serif;color:#fff;background:rgba(0,0,0,.55);padding:2px 7px;border-radius:3px;z-index:1}
+.vbox .res{position:absolute;right:8px;bottom:8px;font:600 12.5px/1.4 Inter,sans-serif;color:#fff;background:rgba(0,0,0,.55);padding:2px 7px;border-radius:3px;z-index:1}
+.vbox .res.ok{color:#7ee2a3}
+.ov .ring{fill:none;stroke:var(--start);stroke-width:2.4}
+.ov .arr{stroke:var(--start);stroke-width:3;fill:none;stroke-linecap:round}
+.ov .arr.dash{stroke-dasharray:5 4}
+.ov .head{fill:var(--start)}
+.hide-ov .ov{display:none}
+/* method animation */
+.mech{position:relative;display:grid;grid-template-columns:1fr 330px;gap:0 34px;align-items:center;padding:30px 0 6px}
+.mech .demos{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.mech .demos .vbox{border-radius:2px;transition:outline-color .4s;outline:2px solid transparent;outline-offset:2px}
+.mech.p0 .demos .vbox{outline-color:var(--accent)}
+.mech .col-l .lbl,.mech .col-r .lbl{font-size:13px;color:var(--muted);margin-bottom:8px;line-height:1.35}
+.mech svg.flow{width:100%;height:auto;display:block;overflow:visible}
+.flow text{font-family:Inter,sans-serif;fill:var(--ink)}
+.flow .box{fill:var(--paper);stroke:var(--ink);stroke-width:1.4}
+.flow .frozen{fill:var(--wash);stroke:var(--faint);stroke-width:1}
+.flow .wire{stroke:var(--faint);stroke-width:1.3;fill:none}
+.flow .tok{fill:var(--rule);transition:fill .25s}
+.flow .tok.on{fill:var(--read)}
+.flow .tok.hl{fill:var(--accent)}
+.flow .rd{fill:var(--paper);stroke:var(--read);stroke-width:2}
+.flow .rd.on{fill:var(--read)}
+.flow .pulse{fill:var(--accent);opacity:0}
+.flow .enc{transition:stroke .3s}
+.mech.p1 .flow .enc{stroke:var(--accent);stroke-width:2.4}
+.mech .col-r .vbox{aspect-ratio:4/3}
+.mech .step{font-family:Newsreader,Georgia,serif;font-size:22px;color:var(--ink);min-height:2.6em;margin-top:18px;transition:opacity .35s}
+.mech .dots{display:flex;gap:6px;margin-top:6px}
+.mech .dots i{width:22px;height:3px;background:var(--rule);display:block}
+.mech .dots i.on{background:var(--ink)}
+/* wheel */
+.wheel{position:relative;width:100%;max-width:880px;aspect-ratio:1/1;margin:10px auto 0}
+.wheel svg.dial{position:absolute;inset:0;width:100%;height:100%}
+.wheel figure{position:absolute;width:16.5%;transform:translate(-50%,-50%);margin:0}
+.wheel figure figcaption{font-size:12.5px;display:flex;justify-content:space-between;gap:4px;margin-top:4px;color:var(--muted)}
+.wheel figure figcaption .d{font-family:"JetBrains Mono",monospace;color:var(--ink)}
+.wheel figure .vbox{outline:3px solid var(--k);outline-offset:-3px}
+.wheel figure[data-t="dir"] .vbox{outline-style:dashed}
+.wheel .center{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:34%;text-align:center;font-size:14px;color:var(--muted)}
+.dial .ring{fill:none;stroke:var(--rule);stroke-width:1}
+.dial .spk{stroke:var(--rule);stroke-width:1}
+.dial .gap{fill:var(--t-dir);opacity:.07}
+.k-pair{--k:var(--t-pair)} .k-pairing{--k:var(--t-pairing)} .k-object{--k:var(--t-object)} .k-dir{--k:var(--t-dir)}
+.legend4{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:26px}
+.legend4 div{border-top:3px solid var(--k);padding-top:8px;font-size:14.5px;line-height:1.4;color:var(--muted)}
+.legend4 div.k-dir{border-top-style:dashed}
+.legend4 .v{font-family:Newsreader,Georgia,serif;font-size:34px;line-height:1.1;color:var(--ink);display:block}
+.legend4 b{display:block;font-weight:600;color:var(--ink);margin:2px 0}
+.legend4 div.off{opacity:.35}
+/* rows of synced clips */
+.row{display:grid;gap:12px}
+.row figure{margin:0}
+.row figcaption{font-size:14px;color:var(--muted);margin-top:6px;line-height:1.4}
+.row figcaption b{color:var(--ink)}
+.r5{grid-template-columns:repeat(5,1fr)} .r3{grid-template-columns:repeat(3,1fr)} .r2{grid-template-columns:repeat(2,1fr)}
+.stack .vbox+.vbox{margin-top:6px}
+/* numbers inline */
+.big{font-family:Newsreader,Georgia,serif;font-size:clamp(46px,7vw,84px);line-height:1;color:var(--ink);letter-spacing:-.01em}
+.big .to{color:var(--faint);font-size:.6em;padding:0 .12em;vertical-align:.18em}
+.big .hi{color:var(--accent)}
+.pair-num{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:6px}
+.pair-num div{font-size:14px;color:var(--muted)}
+.pair-num .n{font-family:Newsreader,Georgia,serif;font-size:40px;color:var(--ink);line-height:1.1;display:block}
+/* polar plots */
+.polars{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;align-items:start}
+.polar{text-align:center}
+.polar svg{width:100%;max-width:250px;display:block;margin:0 auto}
+.polar .c{font-size:14px;color:var(--muted)}
+.polar .n{font-family:Newsreader,Georgia,serif;font-size:38px;color:var(--ink);line-height:1.1;transition:color .4s}
+.pl .bg{fill:none;stroke:var(--rule);stroke-width:1.2}
+.pl .tick{stroke:var(--rule);stroke-width:1}
+.pl .spoke{stroke:#8d8b84;stroke-width:4;stroke-linecap:round}
+.pl .sector{fill:var(--goal-soft);stroke:var(--goal);stroke-width:1.6}
+.pl .swap{fill:none;stroke:var(--ink);stroke-width:1.6;stroke-dasharray:4 3}
+.pl .start{fill:var(--start);stroke:var(--ink);stroke-width:.8}
+.pl circle.dot{transition:transform .8s cubic-bezier(.3,.7,.2,1),opacity .5s,fill .4s;fill-opacity:.55}
+.side{display:grid;grid-template-columns:300px 1fr;gap:36px;align-items:center}
+/* behaviours */
+.gal{display:grid;grid-template-columns:repeat(7,1fr);gap:10px}
+.gal.h6{grid-template-columns:repeat(6,1fr)}
+.gal figure{margin:0}
+.gal figcaption{font-size:13.5px;margin-top:5px;color:var(--ink);display:flex;justify-content:space-between;gap:4px}
+.gal figcaption span{color:var(--faint)}
+.gal.h6 .vbox{outline:1.5px dashed var(--faint);outline-offset:2px}
+.bars{display:grid;grid-template-columns:max-content 1fr;gap:10px 18px;align-items:center;margin:26px 0 8px;font-size:15px}
+.bars .lab{text-align:right;color:var(--ink)}
+.bars .lab small{display:block;color:var(--faint);font-size:13px}
+.bars .b{display:flex;flex-direction:column;gap:4px}
+.bars i{display:block;height:12px;position:relative;min-width:2px}
+.bars i::after{content:attr(data-v);position:absolute;left:calc(100% + 8px);top:-4px;font:500 13px Inter,sans-serif;color:var(--ink);white-space:nowrap;font-style:normal}
+.bars i.n{background:var(--nodemo)} .bars i.br{background:var(--read)}
+/* table */
+.tscroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:560px;font-size:15.5px}
+th,td{padding:8px 10px;border-bottom:1px solid var(--rule);text-align:left}
+th{font-weight:500;color:var(--muted);font-size:14px}
+td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+tr.ours td{color:var(--ink);font-weight:600}
+figure.fig{margin:22px 0 0}
+figure.fig img{width:100%;display:block;background:var(--plate);border-radius:3px;padding:10px}
+/* Q&A */
+.qa details{border-top:1px solid var(--rule);padding:14px 0}
+.qa details:last-child{border-bottom:1px solid var(--rule)}
+.qa summary{font-family:Newsreader,Georgia,serif;font-size:22px;color:var(--ink);cursor:pointer;list-style:none}
+.qa summary::-webkit-details-marker{display:none}
+.qa summary::before{content:"+";display:inline-block;width:1.1em;color:var(--faint)}
+.qa details[open] summary::before{content:"–"}
+.qa details p{margin:10px 0 4px 1.1em;font-size:17px}
+footer{padding:90px 20px 60px;text-align:center;font-size:13px;color:var(--faint)}
+@media (max-width:900px){
+  .mech{grid-template-columns:1fr;gap:18px}
+  .r5{grid-template-columns:repeat(2,1fr)}
+  .r3{grid-template-columns:repeat(3,1fr)}
+  .polars{grid-template-columns:1fr 1fr 1fr;gap:8px}
+  .side{grid-template-columns:1fr}
+  .gal{grid-template-columns:repeat(4,1fr)} .gal.h6{grid-template-columns:repeat(3,1fr)}
+  .legend4{grid-template-columns:1fr 1fr}
+  .wheel{aspect-ratio:auto;display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .wheel svg.dial,.wheel .center{display:none}
+  .wheel figure{position:static;width:auto;transform:none}
+}
+@media (max-width:560px){
+  body{font-size:17px}
+  .r3,.r2{grid-template-columns:1fr 1fr}
+  .polars{grid-template-columns:1fr}
+  .wheel{grid-template-columns:repeat(2,1fr)}
+  .top nav{display:none}
+}
+@media (prefers-reduced-motion:reduce){ .pl circle.dot{transition:none} html{scroll-behavior:auto} }
+</style>
+</head>
+<body>
+
+<nav class="toc" aria-label="Contents" id="toc">
+  <a href="#method">How READ reads</a><a href="#wheel">What demos can say</a><a href="#swap">Does it follow them?</a>
+  <a href="#coverage">What training makes it work</a><a href="#behavior">Kinds of behavior</a><a href="#limits">Where it stops</a>
+  <a href="#liberogen">vs. fine-tuning</a><a href="#qa">Questions</a>
+</nav>
+
+<div class="prose top">
+  <span class="brand">READ</span>
+  <nav><a href="#method">Method</a><a href="#swap">Results</a><a href="#qa">Q&amp;A</a></nav>
+</div>
+
+<header class="prose">
+  <h1>READ: What Makes a Pretrained VLA Teachable by Demonstration?</h1>
+  <div class="meta"><span>Authors</span><span>Anonymous</span><span>Status</span><span>Under double-blind review</span><span>Policy</span><span>π<sub>0.5</sub>, pretrained weights frozen</span></div>
+  <p class="lead">Show a pretrained robot policy five demonstrations of a new task, and it can perform the task.
+    No gradient step, no fine-tuning run: the demonstrations are written once into a memory that the policy
+    reads while it acts.</p>
+</header>
+
+<div class="hero">
+  <video id="hero" src="static/videos/hero_teaser.mp4" poster="static/img/hero_poster.jpg" muted loop autoplay playsinline preload="auto"
+    aria-label="The same scene and instruction with four different sets of demonstrations; the robot moves the bread wherever the demonstrations show."></video>
+</div>
+<p class="prose cap">One scene, one instruction, <span class="instr">move the bread</span>. Only the five demonstrations change, and the
+  robot follows them. Paper checkpoints and demonstrations, re-recorded at 4× resolution on the first evaluation seed (not selected), 2× speed. The bread was never manipulated in training.</p>
+
+<!-- 1. method -->
+<section id="method">
+  <div class="prose">
+    <span class="sec-n">01</span>
+    <h2>Write the demonstrations once, read them at every step</h2>
+    <p>READ adds a demonstration encoder and a few gated readers to π<sub>0.5</sub>. The encoder turns five demonstrations
+      (camera video, robot states and actions) into a fixed memory. While the policy generates each action chunk, readers in
+      its action expert query that memory, so different moments can draw on different parts of the demonstrations.</p>
+  </div>
+  <div class="wide">
+    <div class="mech p0" id="mech">
+      <div class="col-l"><div class="lbl">5 demonstrations of a new task</div><div class="demos" id="mech-demos"></div>
+        <svg class="flow" id="flow" viewBox="0 0 640 330" role="img" aria-label="Demonstrations are encoded into memory tokens that readers in the action expert query"></svg></div>
+      <div class="col-r"><div class="lbl">π<sub>0.5</sub> acting, with readers in its action expert</div><div class="vbox" id="mech-roll"></div></div>
+    </div>
+    <div class="prose" style="padding:0">
+      <div class="step" id="mech-step"></div>
+      <div class="dots" id="mech-dots"><i></i><i></i><i></i><i></i></div>
+    </div>
+  </div>
+  <div class="prose" style="margin-top:28px">
+    <div class="def"><div class="term">in-context training</div>
+      <p>The stage between pretraining and adaptation. The encoder, the readers and one LoRA shared by all tasks are trained
+        once across many training tasks; π<sub>0.5</sub>'s pretrained weights stay frozen. A new task then costs one encoder pass.
+        This is the stage we vary to ask which training experience makes a policy teachable.</p></div>
+  </div>
+</section>
+
+<!-- 2. wheel -->
+<section id="wheel">
+  <div class="prose">
+    <span class="sec-n">02</span>
+    <h2>The demonstrations say what the instruction can't</h2>
+    <p>In our Direction suite every task of an object shares one scene and one instruction, <span class="instr">move the mouse</span>.
+      What differs is the goal: one of twelve directions, 30° apart, 11 cm away. Text never says which. Each clip below is a
+      demonstration, placed at the direction it shows.</p>
+    <div class="tabs" role="group" aria-label="Object">
+      <button type="button" data-obj="a" aria-pressed="true">A training object</button>
+      <button type="button" data-obj="b" aria-pressed="false">An object never manipulated in training</button>
+      <button type="button" data-ov="toggle" aria-pressed="true" style="margin-left:auto">Goal arrows</button>
+    </div>
+  </div>
+  <div class="wide">
+    <div class="wheel" id="wheelbox"></div>
+    <div class="legend4" id="types">
+      <div class="k-pair" data-t="pair"><span class="v">81%</span><b>Trained pair</b>this object was trained in this direction</div>
+      <div class="k-pairing" data-t="pairing"><span class="v">74%</span><b>New pairing</b>direction trained only with other objects</div>
+      <div class="k-object" data-t="object"><span class="v">78%</span><b>New object</b>never manipulated in training</div>
+      <div class="k-dir" data-t="dir"><span class="v">13%</span><b>New direction</b>90–150°, no training task covers it</div>
+    </div>
+    <p class="cap">Outline color marks which kind of test each direction is for this object; the numbers are READ's success on that
+      kind of test across the suite. Clips are expert demonstrations from the policy's head camera; arrows are drawn for viewing only.</p>
+  </div>
+</section>
+
+<!-- 3. swap -->
+<section id="swap">
+  <div class="prose">
+    <span class="sec-n">03</span>
+    <h2>Does the policy actually follow them?</h2>
+    <p>A policy that ignored demonstrations could still succeed by always moving each object its favorite way. So we keep
+      the scene and the instruction and swap in demonstrations of other directions. Five runs from <b>the same initial state</b>:</p>
+    <div class="tabs" role="group" aria-label="Object">
+      <button type="button" data-sw="bread" aria-pressed="true">Bread, asked for 240°</button>
+      <button type="button" data-sw="mouse" aria-pressed="false">Mouse, asked for 300°</button>
+    </div>
+  </div>
+  <div class="wide">
+    <div class="row r5" id="swapgrid"></div>
+    <p class="cap" id="swapnote"></p>
+  </div>
+  <div class="prose" style="margin-top:40px">
+    <div class="side">
+      <div class="polar"><svg class="pl" id="pl-swap" viewBox="-115 -115 230 230" role="img" aria-label="Landing angles"></svg>
+        <div class="tabs" role="group" aria-label="Demonstrations given" style="justify-content:center">
+          <button type="button" data-swap="own" aria-pressed="true">own</button>
+          <button type="button" data-swap="swap30" aria-pressed="false">30° demos</button>
+          <button type="button" data-swap="nodemo" aria-pressed="false">no demos</button>
+        </div></div>
+      <div>
+        <div class="big">81%</div>
+        <p style="margin-top:8px">of all swapped-demo episodes land within 12° of the swapped-in direction; under 1% still complete
+          the original task. Without demonstrations, a multi-task LoRA succeeds in 0–11% and favors one default direction per object.</p>
+        <p class="cap">Dial: every evaluation episode of the bread at 240°. Each dot is where one episode ended; radial position is spread only to reduce overlap.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 4. coverage -->
+<section id="coverage">
+  <div class="prose">
+    <span class="sec-n">04</span>
+    <h2>What in the training data makes this possible?</h2>
+    <p>Two READ models see nearly the same number of demonstrations: each of 37 objects in five directions. The <b>shared</b>
+      model trains every object in the same five; the <b>scattered</b> model varies them across objects, covering nine directions
+      overall. Neither has trained this mouse at 240° or 300°, but only the scattered model has seen <i>other</i> objects move that way.</p>
+    <div class="big"><span>1%</span><span class="to">→</span><span class="hi">79%</span></div>
+    <p class="cap" style="margin-top:6px">success on these new object–direction pairings, shared vs scattered, at nearly the same data budget.</p>
+    <div class="tabs" role="group" aria-label="Direction">
+      <button type="button" data-cov="240" aria-pressed="true">Demos show 240°</button>
+      <button type="button" data-cov="300" aria-pressed="false">Demos show 300°</button>
+    </div>
+  </div>
+  <div class="wide">
+    <div class="row r2" id="covgrid" style="max-width:900px;margin:0 auto"></div>
+    <p class="cap" id="covnote" style="max-width:900px;margin-left:auto;margin-right:auto"></p>
+  </div>
+  <div class="wide" style="margin-top:34px">
+    <div class="tabs" role="group" aria-label="Training split" style="justify-content:center">
+      <button type="button" data-split="shared" aria-pressed="true">Shared split</button>
+      <button type="button" data-split="scattered" aria-pressed="false">Scattered split</button>
+    </div>
+    <div class="polars">
+      <div class="polar"><svg class="pl" id="pl-train" viewBox="-115 -115 230 230" role="img" aria-label="Trained directions"></svg>
+        <div class="n" id="cov-ndir">5</div><div class="c">directions in training</div></div>
+      <div class="polar"><svg class="pl" id="pl-240" viewBox="-115 -115 230 230" role="img" aria-label="Landings, demos of 240 degrees"></svg>
+        <div class="n" id="cov-240">1%</div><div class="c">demos show 240° · <span id="cov-240n"></span></div></div>
+      <div class="polar"><svg class="pl" id="pl-300" viewBox="-115 -115 230 230" role="img" aria-label="Landings, demos of 300 degrees"></svg>
+        <div class="n" id="cov-300">2%</div><div class="c">demos show 300° · <span id="cov-300n"></span></div></div>
+    </div>
+    <p class="cap" style="text-align:center">Three test objects, every evaluation episode. On objects never manipulated in training, the same two directions: 3% vs 78%.</p>
+  </div>
+
+  <div class="prose" style="margin-top:56px">
+    <h3>Beyond the covered directions: carrying helps, reaching doesn't</h3>
+    <p>No training task covers 90–150°, and there READ is pulled toward the nearest trained direction. We add 79 tasks at 75, 105,
+      135 and 165° on other objects, keeping the tested goals untrained: either grasp-and-carry episodes or arm-only reaching
+      over the same directions. Same mouse, same start, demonstrations of 120°:</p>
+  </div>
+  <div class="wide">
+    <div class="row r3" id="beygrid" style="max-width:980px;margin:0 auto"></div>
+    <div class="pair-num" style="grid-template-columns:repeat(3,1fr);max-width:980px;margin:14px auto 0">
+      <div><span class="n">11%</span>READ: hits within 7.5° of the goal, 90–150° pooled</div>
+      <div><span class="n" style="color:var(--carry)">49%</span>+ carrying data</div>
+      <div><span class="n" style="color:var(--reach)">1%</span>+ reaching data</div>
+    </div>
+  </div>
+</section>
+
+<!-- 5. behaviours -->
+<section id="behavior">
+  <div class="prose">
+    <span class="sec-n">05</span>
+    <h2>More kinds of behavior in training, more that demonstrations can teach</h2>
+    <p>In our Behavior suite the instruction again names only the object, and the demonstrations decide <i>how</i> to move it.
+      Two READ models train on the same 37 objects: a narrow set (hold, translate, rotate) and a broad set that adds tilt, place,
+      drag, push and sequences, with fewer episodes in total.</p>
+    <div class="bars">
+      <div class="lab">in both sets<small>translate, rotate</small></div>
+      <div class="b"><i class="n" style="width:calc(50% * .85)" data-v="50% narrow"></i><i class="br" style="width:calc(53% * .85)" data-v="53% broad"></i></div>
+      <div class="lab">only in the broad set<small>5 further kinds</small></div>
+      <div class="b"><i class="n" style="width:0" data-v="0% narrow"></i><i class="br" style="width:calc(38% * .85)" data-v="38% broad"></i></div>
+      <div class="lab">in neither set<small>6 held-out behaviors</small></div>
+      <div class="b"><i class="n" style="width:0" data-v="0/900"></i><i class="br" style="width:calc(2% * .85)" data-v="17/900"></i></div>
+    </div>
+  </div>
+  <div class="wide" style="margin-top:26px">
+    <p class="cap" style="margin:0 0 8px">Behaviors in training (expert demonstrations)</p>
+    <div class="gal" id="g-train"></div>
+    <p class="cap" style="margin:22px 0 8px">Held out from both training sets: given only as demonstrations at test time</p>
+    <div class="gal h6" id="g-held"></div>
+  </div>
+</section>
+
+<!-- 6. limits -->
+<section id="limits">
+  <div class="prose">
+    <span class="sec-n">06</span>
+    <h2>Where it stops</h2>
+    <p>Shown circling, dropping or shaking, the broad-set model picks the object up and falls back to behaviors it was trained on.
+      At nearly fixed data, coverage decided what transferred in both suites; these failures mark what training should cover next.</p>
+  </div>
+  <div class="wide" style="max-width:940px"><div class="row r3" id="fails"></div>
+    <p class="cap">Each pair: one of the five demonstrations (another episode of the task, so the scene differs), then READ on its own
+      test episode, 2× speed. Narrow set 0/900 and broad set 17/900 on the six held-out behaviors, mostly tapping.</p></div>
+</section>
+
+<!-- 7. LIBERO-Gen -->
+<section id="liberogen">
+  <div class="prose">
+    <span class="sec-n">07</span>
+    <h2>Five demonstrations match per-task fine-tuning</h2>
+    <p>On ten held-out LIBERO-Gen tasks, which pair familiar pick-up places and destinations in new ways, READ reaches 92.8% from
+      five demonstrations; a LoRA fine-tuned on each task with all 36–49 of its demonstrations reaches 92.5%. The demonstrations
+      matter most where the instruction is hard to ground:</p>
+    <p style="margin-bottom:10px"><span class="instr">pick up the black bowl next to the cookie box and place it in the black bowl next to the ramekin</span></p>
+  </div>
+  <div class="wide"><div class="row r2" id="libero" style="max-width:760px;margin:0 auto"></div>
+    <p class="cap" style="max-width:760px;margin-left:auto;margin-right:auto">Same initial state, episode 0 (not selected), 2× speed. On this task:
+      READ 98.8% vs multi-task LoRA 54.0% in the paper (5×50 episodes); 10/10 vs 5/10 in the episodes recorded for this page.</p></div>
+  <div class="prose" style="margin-top:30px">
+    <div class="tscroll"><table>
+      <thead><tr><th>Method</th><th>At test time</th><th>Training on the new task</th><th style="text-align:right">Success (%)</th></tr></thead>
+      <tbody>
+        <tr><td>Multi-task LoRA</td><td>instruction</td><td>none</td><td class="num">85.5 ± 1.6</td></tr>
+        <tr><td>BPP, language only<sup>†</sup></td><td>instruction</td><td>none</td><td class="num">72.4 ± 1.5</td></tr>
+        <tr><td>Per-task LoRA</td><td>instruction</td><td>24k steps, 36–49 demos</td><td class="num">92.5 ± 1.3</td></tr>
+        <tr><td>Per-task LoRA</td><td>instruction</td><td>12k steps, 5 demos</td><td class="num">82.2 ± 0.9</td></tr>
+        <tr><td>BPP, demo only<sup>†</sup></td><td>1 demo</td><td>none</td><td class="num">77.1 ± 1.2</td></tr>
+        <tr><td>Demo2LoRA (generated weights)</td><td>instruction + 5 demos</td><td>none</td><td class="num">87.2 ± 1.2</td></tr>
+        <tr class="ours"><td>READ</td><td>instruction + 5 demos</td><td>none</td><td class="num">92.8 ± 0.9</td></tr>
+      </tbody></table></div>
+    <p class="cap">Full instructions; mean over ten tasks ± std over five evaluation runs of 50 episodes per task. <sup>†</sup>Released
+      checkpoints without a pretrained VLA, five sampling seeds.</p>
+    <figure class="fig"><img src="static/img/fig05_results.png" alt="Per-task success and sensitivity to swapped demonstrations on LIBERO-Gen."></figure>
+    <p class="cap">(a) Per task. (b) Swapping in another task's demonstrations, with the correct instruction kept, lowers READ's success
+      more than the weight-generating baseline's: READ depends more on what the demonstrations show.</p>
+  </div>
+</section>
+
+<!-- 8. Q&A -->
+<section id="qa">
+  <div class="prose qa">
+    <span class="sec-n">08</span>
+    <h2>Questions</h2>
+    <details><summary>Isn't this just fine-tuning on the new task?</summary>
+      <p>No parameter changes on the new task. Five demonstrations are encoded once into a cached memory, and the policy acts.
+        For comparison, the per-task LoRA that READ matches on LIBERO-Gen takes 24k gradient steps on 36–49 demonstrations;
+        fine-tuned on the same five demonstrations READ receives, it reaches 82.2%.</p></details>
+    <details><summary>The instruction already names the task. Are the demonstrations even used?</summary>
+      <p>In the Direction and Behavior suites the instruction names only the object, so the goal or behavior can come only from the
+        demonstrations: base π<sub>0.5</sub> succeeds in 0 of 630 Direction episodes. Swapping demonstrations redirects the object (section 03),
+        and on LIBERO-Gen swapping them lowers READ's success more than the weight-generating baseline's.</p></details>
+    <details><summary>Why a memory, and not weights generated from the demonstrations?</summary>
+      <p>Our Demo2LoRA baseline uses the same encoder, data and loss but writes the demonstrations into per-task LoRA weights before
+        execution. READ keeps a memory the policy can query as its situation changes: 92.8% vs 87.2% on LIBERO-Gen with full
+        instructions, and stronger dependence on demonstration content.</p></details>
+    <details><summary>What does it cost at deployment?</summary>
+      <p>One encoder pass per task, cached as 0.2 MiB of memory tokens. Each action chunk takes 5.7% longer than the base policy on
+        one L40S (LIBERO-Gen, 100-token memory); the readers query a few hundred cached tokens and video is never re-encoded during rollouts.</p></details>
+    <details><summary>Can it learn completely new behaviors from demonstrations?</summary>
+      <p>Not yet at our data scale. It transfers trained movements to new objects and new pairings, and trained behaviors to nearby
+        distances and angles, but six held-out behaviors stay near zero (section 06). Broader coverage was what helped in both suites,
+        which is why we read these results as a guide for scaling training data.</p></details>
+    <details><summary>Are these results in the real world?</summary>
+      <p>No. All results are in simulation, on LIBERO-Gen and on two RoboTwin benchmarks we built so that the training tasks could be rearranged.</p></details>
+  </div>
+</section>
+
+<footer>Anonymous project page for double-blind review · RoboTwin and LIBERO simulation · videos from the policy's head-camera viewpoint</footer>
+
+<script id="data" type="application/json">{"spokes": {"shared": {"0": 0, "30": 37, "60": 0, "90": 0, "120": 0, "150": 0, "180": 37, "210": 37, "240": 0, "270": 37, "300": 0, "330": 37}, "scattered": {"0": 20, "30": 22, "60": 20, "90": 0, "120": 0, "150": 0, "180": 22, "210": 21, "240": 19, "270": 21, "300": 19, "330": 21}}, "coverage": {"shared_240": {"landings": [271.2, 281.6, 269.1, 269.0, 281.8, 264.3, 284.9, 271.3, 284.9, 270.1, 287.0, 46.6, 266.1, 281.1, 273.2, 272.7, 277.7, 266.5, 281.7, 278.6, 290.2, 270.7, 262.8, 265.0, 256.7, 264.5, 269.0, 277.3, 265.2, 267.7, 276.6, 265.0, 262.7, 264.6, 276.0, 282.7, 266.1, 277.8, 266.6, 281.0, 278.1, 261.1, 273.0, 267.6, 281.8, 273.1, 278.6, 266.7, 282.3, 275.1, 273.4, 285.7, 269.1, 268.5, 277.7, 278.7, 272.0, 276.0, 266.6, 276.9, 357.4, 311.7, 266.2, 166.0, 263.6, 302.9, 268.0, 277.4, 280.2, 262.6, 275.6, 261.1, 267.6, 284.4, 268.3, 273.5, 268.0, 272.3, 284.6, 265.8, 264.1, 267.3, 267.6, 271.8, 274.1, 280.9, 268.0, 250.9, 256.9, 277.4, 256.6, 281.4, 273.4, 261.8, 278.9, 272.4, 270.0, 281.3, 274.7, 276.4, 264.1, 260.1, 275.6, 274.6, 276.9, 270.9, 271.9, 277.7, 272.4, 260.9, 273.6, 265.2, 279.4, 279.0, 273.9, 272.5, 269.9, 271.5, 264.7, 260.8, 258.5, 265.1, 254.9, 268.8, 273.0, 277.2, 259.9, 273.8, 266.1, 263.9, 272.8, 267.8], "n": 150, "succ": 1}, "shared_300": {"landings": [274.4, 280.7, 267.7, 281.8, 265.9, 281.9, 279.5, 274.8, 325.1, 273.7, 278.0, 281.4, 261.0, 268.9, 288.3, 276.8, 278.8, 273.9, 266.9, 277.8, 290.6, 279.4, 274.8, 264.4, 271.0, 258.0, 274.8, 277.1, 278.8, 269.3, 269.5, 279.4, 276.9, 269.7, 274.8, 274.4, 271.2, 272.5, 282.2, 277.8, 265.5, 277.1, 268.7, 277.5, 276.0, 271.0, 283.3, 288.0, 277.2, 276.6, 285.5, 274.2, 267.7, 279.2, 279.9, 273.2, 280.2, 266.7, 278.6, 358.9, 348.8, 271.6, 272.8, 267.5, 265.1, 272.6, 269.4, 280.5, 277.9, 268.3, 278.1, 267.8, 272.1, 287.3, 264.4, 275.7, 271.8, 276.2, 286.8, 272.0, 267.8, 268.5, 272.1, 270.3, 278.9, 279.5, 270.4, 253.3, 265.0, 277.5, 283.0, 274.4, 266.2, 285.2, 345.1, 278.5, 275.6, 275.7, 277.8, 278.7, 267.3, 286.6, 278.8, 279.6, 274.3, 277.7, 278.8, 277.9, 265.3, 281.6, 268.7, 280.3, 284.4, 284.5, 277.8, 280.2, 277.6, 275.5, 268.0, 263.8, 272.8, 257.9, 274.6, 276.5, 276.5, 264.3, 275.1, 269.7, 270.3, 272.0, 269.4], "n": 150, "succ": 3}, "scattered_240": {"landings": [245.8, 246.8, 237.1, 245.5, 237.9, 245.3, 247.9, 246.0, 241.1, 243.5, 245.9, 236.0, 240.6, 250.6, 243.2, 242.5, 246.6, 239.6, 251.1, 247.0, 237.0, 240.7, 240.2, 238.6, 243.7, 248.4, 242.5, 247.9, 235.9, 244.8, 238.2, 234.3, 242.5, 250.1, 287.9, 245.4, 240.0, 237.4, 322.4, 237.1, 250.8, 240.5, 240.0, 243.9, 241.2, 240.5, 245.8, 343.8, 245.2, 243.6, 243.4, 243.4, 234.8, 314.2, 243.4, 249.8, 244.8, 247.3, 234.6, 245.2, 348.8, 243.0, 246.8, 230.2, 274.5, 234.9, 278.9, 239.1, 244.1, 246.9, 298.9, 239.5, 234.7, 237.5, 245.7, 242.2, 235.2, 245.1, 243.1, 238.3, 235.4, 239.3, 240.9, 238.7, 240.7, 249.6, 238.9, 222.7, 235.0, 243.9, 237.5, 247.4, 240.5, 242.9, 244.2, 236.1, 243.9, 246.3, 247.8, 232.9, 238.3, 251.6, 251.7, 250.5, 247.1, 233.6, 253.8, 238.1, 233.0, 239.9, 245.8, 246.6, 248.4, 242.8, 241.8, 242.4, 227.5, 226.3, 240.2, 239.4, 225.8, 229.8, 244.4, 247.5, 235.2, 250.0, 228.2, 240.9, 244.9, 236.9], "n": 150, "succ": 116}, "scattered_300": {"landings": [296.3, 311.3, 303.1, 291.6, 308.4, 301.9, 305.9, 305.5, 315.4, 311.7, 305.9, 309.6, 293.9, 309.9, 299.2, 310.4, 306.0, 300.6, 302.8, 304.0, 304.8, 297.2, 289.1, 293.2, 300.7, 305.0, 299.0, 296.1, 295.7, 304.1, 288.3, 294.9, 302.8, 290.3, 306.2, 302.9, 311.1, 302.4, 290.2, 302.8, 296.8, 310.8, 298.0, 302.9, 290.8, 309.3, 303.0, 307.3, 302.9, 307.2, 302.6, 299.3, 321.7, 302.6, 307.3, 302.6, 313.2, 290.5, 307.6, 306.0, 306.3, 296.5, 299.1, 302.9, 288.4, 301.3, 305.3, 302.9, 298.0, 306.4, 286.9, 292.9, 302.9, 305.0, 304.5, 308.2, 306.6, 306.4, 296.0, 293.3, 299.7, 300.8, 305.0, 310.2, 303.5, 290.1, 294.7, 304.5, 301.4, 299.7, 297.0, 310.1, 307.1, 209.7, 303.4, 305.5, 307.6, 297.7, 293.7, 308.1, 301.7, 302.9, 298.6, 300.4, 307.5, 307.1, 296.6, 307.0, 295.5, 307.6, 307.6, 299.6, 302.2, 303.0, 307.6, 300.3, 296.0, 288.2, 299.8, 293.9, 302.6, 305.1, 298.6, 291.8, 303.0, 295.1, 296.9, 303.5, 303.9], "n": 150, "succ": 121}}, "evidence": {"own": [242.1, 251.3, 234.5, 224.4, 235.7, 243.7, 233.9, 243.1, 244.9, 245.9, 245.4, 240.1, 238.8, 236.1, 249.3, 245.4, 250.5, 255.3, 245.8, 242.1, 236.7, 238.5, 237.3, 250.8, 245.0, 253.9, 238.7, 240.1, 242.6, 245.3, 232.7, 232.7, 236.6, 236.9, 234.4, 240.8, 248.8, 234.5, 240.5, 238.6, 244.2, 233.2, 233.6, 234.9, 247.6, 225.0, 240.2, 234.7, 241.8, 243.4], "swap30": [28.0, 27.4, 37.3, 42.3, 38.9, 29.6, 31.8, 36.0, 32.4, 29.0, 31.7, 37.1, 29.3, 26.2, 29.8, 24.8, 19.6, 29.3, 29.7, 32.6, 23.4, 25.4, 30.2, 34.7, 23.6, 37.1, 29.8, 35.0, 32.0, 28.6, 32.9, 25.1, 27.6, 34.8, 29.5, 27.5, 31.6, 25.6, 30.9, 31.8, 33.3, 37.3, 29.8, 27.2, 44.1, 36.9, 39.9, 25.8, 36.7, 26.4, 27.8, 28.5, 39.6, 33.8, 27.7, 35.4, 36.1, 25.6, 27.1], "nodemo": [29.3, 30.8, 300.9, 345.0, 23.2, 349.7, 336.8, 250.9, 184.3, 204.8, 42.5, 6.5, 170.7, 28.0, 167.6, 1.5, 184.1, 40.7, 313.4, 35.7, 19.9, 289.0, 0.3, 54.8, 36.8, 326.6, 190.6, 187.1, 232.3, 14.8, 63.8, 176.6, 327.5, 29.4, 58.3, 47.7, 344.4, 8.2, 342.8, 37.9, 283.3, 205.2, 203.8, 11.3, 282.7, 11.4, 351.5, 31.1, 164.2, 58.2, 24.3, 333.0, 9.6, 34.7, 18.5, 0.5, 16.9, 60.7, 168.8, 345.0, 82.9, 260.2, 23.9, 31.1, 351.9, 333.0, 8.3, 298.2], "read_120": [133.6, 141.3, 149.2, 104.7, 145.7, 152.4, 141.3, 125.4, 142.4, 145.8, 145.4, 128.6, 140.7, 126.2, 152.2, 149.5, 150.0, 143.5, 125.7, 168.4, 159.6, 1.5, 157.1, 142.3, 152.2, 156.0, 161.1, 150.2, 149.8, 168.8, 141.4, 144.4, 153.6, 146.3, 145.0, 139.8, 132.4, 141.4, 133.1, 138.4, 138.2, 123.8, 138.9, 135.2, 86.3, 113.1, 147.5, 129.0, 117.3, 150.1, 124.8, 144.2, 134.1, 145.9, 133.7, 145.7, 157.6, 108.1, 142.1, 134.4, 151.3, 143.0, 152.7, 144.8, 163.2, 157.1, 154.6, 144.7, 153.0, 139.9, 141.6, 135.4, 211.5, 145.8, 154.9, 145.6, 153.7, 145.8, 136.5, 131.8, 139.7, 144.1, 132.8, 155.3, 141.7, 126.3, 305.8, 139.5, 150.3, 124.0, 132.2, 120.6, 139.1, 131.4, 350.2, 129.7, 2.8, 347.3, 250.8, 126.8, 243.4, 138.4, 131.9, 140.3, 123.6, 141.2, 148.4, 127.2, 140.1, 142.7, 268.3, 135.8, 138.6, 141.1, 146.5, 295.4, 135.0, 139.7, 126.5, 126.8, 144.3, 143.6, 137.5, 141.1, 135.2, 137.1, 119.3, 128.5, 130.1, 108.1, 144.0, 134.2, 130.4, 354.3, 115.7, 145.8, 118.2, 138.4, 136.9, 108.8, 137.6, 121.9, 148.3, 138.7, 112.3, 105.8, 142.6, 133.5, 135.0, 131.0, 118.7, 128.7, 132.8, 134.6, 123.1, 131.7, 108.6, 118.7, 142.2, 131.0, 129.8, 141.9, 141.1, 126.2, 145.8, 125.6, 145.4, 122.7, 304.0, 140.8, 137.5, 142.7, 131.4, 152.1, 143.5, 126.0, 140.5, 138.0, 129.4, 106.3, 142.4, 130.8, 148.6, 144.6, 141.0, 109.8, 133.8, 131.9, 139.6, 139.1, 149.2, 137.6, 151.8, 138.2, 158.4, 137.7, 141.2, 140.4, 138.2, 138.8, 152.1, 129.1, 138.2, 136.4, 133.1, 156.3, 158.3, 144.8, 120.5, 146.3, 143.7, 144.1, 144.2, 135.0, 140.2, 154.9, 148.3, 145.0, 149.3, 157.6, 143.9, 128.6, 129.7, 150.0, 158.0, 141.2, 139.7, 138.1, 142.5, 140.8, 124.0, 159.0, 142.0, 154.6, 134.8, 155.5, 139.8, 130.2, 153.8, 152.5, 128.6, 166.0, 144.8, 163.0, 145.1, 155.0, 140.8, 136.7, 127.2], "read_hit": [101, 900], "carry_120": [115.5, 108.7, 111.4, 121.3, 111.2, 101.2, 286.2, 111.8, 305.1, 118.9, 298.6, 111.4, 105.3, 123.3, 113.0, 108.0, 269.2, 122.8, 120.6, 118.4, 109.5, 121.9, 116.0, 117.3, 120.0, 109.8, 115.0, 121.6, 106.1, 113.2, 120.3, 117.0, 113.7, 113.0, 106.6, 119.4, 121.7, 125.3, 110.1, 125.8, 107.1, 107.3, 103.6, 114.5, 110.1, 108.7, 110.0, 106.1, 110.8, 109.5, 119.2, 115.0, 122.0, 106.3, 122.2, 111.3, 114.9, 112.8, 111.0, 114.8, 107.8, 114.7, 120.3, 122.7, 131.9, 80.5, 109.5, 121.3, 116.3, 114.7, 111.7, 120.4, 123.7, 121.5, 112.5, 123.9, 120.2, 117.2, 116.9, 121.7, 117.2, 108.1, 117.8, 108.0, 95.4, 319.5, 116.8, 124.9, 114.4, 89.8, 351.0, 107.7, 105.3, 112.6, 322.0, 340.1, 341.8, 341.8, 283.8, 119.3, 115.7, 114.6, 113.9, 118.6, 108.8, 112.1, 106.0, 121.0, 110.8, 111.2, 114.3, 116.0, 121.1, 119.7, 290.2, 340.1, 117.8, 119.7, 130.9, 111.8, 115.7, 111.2, 125.1, 124.2, 347.3, 111.3, 110.1, 117.6, 105.0, 117.9, 116.7, 114.5, 97.8, 323.3, 123.3, 112.1, 120.6, 96.4, 155.3, 115.6, 179.0, 90.1, 116.6, 120.0, 110.6, 120.5, 168.6, 109.8, 109.0, 124.1, 107.4, 91.7, 89.5, 113.5, 118.2, 117.4, 111.1, 116.4, 115.5, 115.3, 118.6, 123.3, 111.0, 90.6, 114.8, 116.7, 113.5, 115.6, 122.1, 118.1, 122.5, 117.8, 116.6, 114.8, 120.6, 117.6, 119.1, 101.6, 110.7, 119.8, 117.4, 193.6, 120.9, 119.4, 108.8, 111.1, 108.2, 112.2, 94.2, 110.4, 158.4, 117.2, 113.5, 268.3, 105.2, 123.1, 108.0, 115.5, 105.5, 115.2, 112.3, 110.5, 112.5, 121.4, 125.6, 114.8, 122.1, 108.9, 110.2, 119.9, 112.4, 118.7, 120.2, 111.0, 114.9, 121.4, 121.5, 123.2, 110.4, 113.5, 122.3, 119.0, 111.8, 109.5, 125.8, 109.3, 108.9, 119.2, 109.7, 112.2, 117.9, 105.8, 114.0, 104.6, 124.5, 114.7, 115.2, 117.2, 124.2, 114.2, 126.0, 117.0, 118.0, 113.3, 113.9, 119.6, 119.5, 127.1, 129.3, 130.1, 118.4, 110.7, 129.2, 121.8, 115.8, 115.3, 118.0, 118.9, 122.6, 120.8, 118.6], "carry_hit": [440, 900], "reach_120": [358.6, 356.4, 336.8, 18.2, 10.0, 215.6, 46.6, 19.9, 8.2, 323.4, 74.4, 71.7, 352.5, 11.4, 69.7, 42.0, 39.6, 60.7, 17.1, 255.8, 339.1, 66.0, 257.6, 357.5, 309.1, 40.1, 28.2, 75.7, 51.3, 54.5, 89.3, 67.3, 62.3, 52.2, 59.2, 50.4, 55.2, 83.3, 50.9, 77.1, 37.5, 65.0, 63.6, 58.0, 53.5, 87.2, 33.1, 34.9, 60.9, 54.9, 60.8, 66.7, 64.6, 66.5, 85.6, 78.8, 60.2, 62.3, 63.7, 78.9, 75.6, 76.5, 72.7, 58.0, 64.7, 58.6, 59.9, 45.3, 84.4, 64.7, 66.2, 69.6, 52.5, 307.4, 185.5, 80.2, 282.8, 349.2, 63.0, 64.0, 49.8, 340.3, 348.0, 338.0, 63.2, 248.0, 60.9, 70.0, 69.5, 342.5, 59.9, 80.2, 70.4, 301.2, 65.8, 252.3, 65.1, 62.5, 65.0, 343.5, 47.6, 76.2, 62.9, 56.3, 68.6, 337.7, 68.4, 58.6, 58.8, 68.2, 58.6, 294.9, 55.6, 59.0, 345.2, 72.4, 45.6, 72.5, 61.0, 67.8, 53.4, 334.3, 48.8, 32.3, 23.9, 69.3, 29.4, 44.2, 15.4, 67.7, 14.5, 72.8, 77.2, 67.9, 83.6, 90.3, 269.1, 69.3, 57.2, 62.8, 57.9, 68.9, 13.8, 52.9, 55.8, 93.0, 55.7, 36.7, 94.1, 63.2, 61.1, 74.1, 74.7, 70.8, 63.1, 53.5, 44.2, 54.6, 57.0, 57.6, 64.8, 66.8, 60.9, 52.7, 78.8, 96.0, 59.5, 62.6, 57.5, 72.3, 64.1, 64.9, 67.1, 69.0, 55.3, 74.8, 88.2, 73.0, 75.2, 80.0, 60.0, 101.8, 74.1, 53.2, 54.9, 68.5, 74.7, 50.8, 55.7, 66.4, 66.1, 39.3, 72.1, 61.9, 54.9, 71.0, 68.5, 83.5, 76.1, 52.5, 88.3, 71.2, 85.1, 72.7, 65.7], "reach_hit": [13, 900]}}</script>
+<script>
+(function(){
+  const D = JSON.parse(document.getElementById('data').textContent);
+  const NS = 'http://www.w3.org/2000/svg', rad = d => d * Math.PI / 180;
+  const el = (tag, attrs, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.append(e); return e; };
+  const pressed = (sel, b) => document.querySelectorAll(sel).forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+  const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function video(src, loop = true){ const v = document.createElement('video'); v.src = src; v.muted = true; v.loop = loop; v.autoplay = true; v.playsInline = true;
+    v.setAttribute('muted', ''); v.setAttribute('playsinline', ''); v.preload = 'auto'; return v; }
+  function sync(vids){ let n = 0; vids.forEach(v => v.addEventListener('canplaythrough', () => { if (++n === vids.length) vids.forEach(x => { x.currentTime = 0; x.play().catch(() => {}); }); }, {once:true})); }
+  const RX = 56, RY = 47;
+  function ov(s0, b, dashed){
+    const s = el('svg', {class:'ov', viewBox:'0 0 320 240', preserveAspectRatio:'xMidYMid slice'});
+    el('circle', {class:'ring', cx:s0[0], cy:s0[1], r:13}, s);
+    if (b == null) return s;
+    const gx = s0[0] + RX * Math.cos(rad(b)), gy = s0[1] - RY * Math.sin(rad(b));
+    const L = Math.hypot(gx - s0[0], gy - s0[1]), nx = (gx - s0[0]) / L, ny = (gy - s0[1]) / L, bx = gx - nx * 9, by = gy - ny * 9;
+    el('path', {class:'arr' + (dashed ? ' dash' : ''), d:`M${s0[0] + nx * 14} ${s0[1] + ny * 14} L${bx} ${by}`}, s);
+    el('path', {class:'head', d:`M${gx} ${gy} L${bx - ny * 6} ${by + nx * 6} L${bx + ny * 6} ${by - nx * 6} Z`}, s);
+    return s;
+  }
+  const ROLL0 = [226, 164], DEMO0 = [235, 165];
+  function tile(src, {tag, res, ok, arrow, dashed, s0 = ROLL0, ratio} = {}){
+    const box = document.createElement('div'); box.className = 'vbox'; if (ratio) box.style.aspectRatio = ratio;
+    const v = video(src); box.append(v);
+    if (arrow !== undefined) box.append(ov(s0, arrow, dashed));
+    if (tag) { const t = document.createElement('span'); t.className = 'tag'; t.textContent = tag; box.append(t); }
+    if (res) { const r = document.createElement('span'); r.className = 'res' + (ok ? ' ok' : ''); r.textContent = res; box.append(r); }
+    return [box, v];
+  }
+
+  // ---------- 01 method animation ----------
+  (function(){
+    const mech = document.getElementById('mech'), demos = document.getElementById('mech-demos'), svg = document.getElementById('flow');
+    for (let i = 0; i < 5; i++) { const [b] = tile(`static/videos/m_demo_${i}.mp4`); demos.append(b); }
+    const [rb, rv] = tile('static/videos/swap_bread_own.mp4', {tag:'READ acting', arrow:240}); document.getElementById('mech-roll').replaceWith(rb);
+    rb.style.aspectRatio = '4/3';
+    // wires from the five demos (a row above) into the encoder
+    for (let i = 0; i < 5; i++) { const x = 64 + 128 * i; el('path', {class:'wire', d:`M${x} 0 C${x} 40 110 30 110 70`}, svg); }
+    el('rect', {class:'box enc', x:40, y:70, width:140, height:70, rx:3}, svg);
+    el('text', {x:110, y:101, 'text-anchor':'middle', 'font-size':14}, svg).textContent = 'demonstration';
+    el('text', {x:110, y:119, 'text-anchor':'middle', 'font-size':14}, svg).textContent = 'encoder';
+    el('path', {class:'wire', d:'M180 105 L232 105'}, svg);
+    // memory: 100 tokens as a 10x10 grid
+    const toks = []; const gx = 238, gy = 52, c = 11.5;
+    for (let r = 0; r < 10; r++) for (let q = 0; q < 10; q++) toks.push(el('rect', {class:'tok', x:gx + q * c, y:gy + r * c, width:c - 2.5, height:c - 2.5, rx:1}, svg));
+    el('text', {x:gx + 56, y:gy - 12, 'text-anchor':'middle', 'font-size':14}, svg).textContent = 'memory';
+    const once = el('text', {x:gx + 56, y:gy + 136, 'text-anchor':'middle', 'font-size':13, fill:'var(--muted)'}, svg); once.textContent = 'written once per task';
+    // action expert: 18 blocks, readers after the last 6
+    const ax = 470, readers = [];
+    el('rect', {class:'frozen', x:ax - 12, y:8, width:84, height:294, rx:4}, svg);
+    el('text', {x:ax + 30, y:324, 'text-anchor':'middle', 'font-size':13, fill:'var(--muted)'}, svg).textContent = 'action expert, frozen';
+    for (let k = 0; k < 18; k++) { const y = 16 + k * 15.6; el('rect', {x:ax, y, width:60, height:10, rx:2, fill:'var(--rule)'}, svg);
+      if (k >= 12) readers.push([el('circle', {class:'rd', cx:ax + 30, cy:y + 5, r:5.5}, svg), y + 5]); }
+    const wires = readers.map(([, y]) => el('path', {class:'wire', d:`M${gx + 115} ${gy + 57} C 420 ${gy + 57}, 420 ${y}, ${ax + 24} ${y}`, opacity:0}, svg));
+    const pulses = readers.map(() => el('circle', {class:'pulse', r:3.5}, svg));
+    el('path', {class:'wire', d:`M${ax + 72} 200 L 640 200`}, svg);
+    el('text', {x:636, y:190, 'text-anchor':'end', 'font-size':13, fill:'var(--muted)'}, svg).textContent = 'actions';
+    const STEPS = ['Five demonstrations of a new task: two camera videos, robot states and actions.',
+                   'Encoded once into a fixed memory of tokens. No gradient step on the new task.',
+                   'At every denoising step, readers in the frozen action expert query the memory.',
+                   'Different moments can draw on different parts of the demonstrations.'];
+    const stepEl = document.getElementById('mech-step'), dots = [...document.querySelectorAll('#mech-dots i')];
+    let timers = [], loopT;
+    const later = (f, ms) => timers.push(setTimeout(f, ms));
+    function setStep(i){ stepEl.style.opacity = 0; later(() => { stepEl.textContent = STEPS[i]; stepEl.style.opacity = 1; }, 300); dots.forEach((d, k) => d.classList.toggle('on', k === i)); }
+    function reset(){ timers.forEach(clearTimeout); timers = []; clearInterval(loopT); toks.forEach(t => t.setAttribute('class', 'tok'));
+      readers.forEach(([r]) => r.setAttribute('class', 'rd')); wires.forEach(w => w.setAttribute('opacity', 0)); pulses.forEach(p => p.style.opacity = 0); once.style.opacity = 0; }
+    function readPulse(band){
+      readers.forEach(([r, y], k) => { r.setAttribute('class', 'rd on'); const p = pulses[k], w = wires[k]; const L = w.getTotalLength();
+        let t0 = null; p.style.opacity = 1;
+        const go = ts => { if (t0 == null) t0 = ts; const f = Math.min(1, (ts - t0) / 420); const pt = w.getPointAtLength(L * f); p.setAttribute('cx', pt.x); p.setAttribute('cy', pt.y);
+          if (f < 1) requestAnimationFrame(go); else { p.style.opacity = 0; r.setAttribute('class', 'rd'); } };
+        requestAnimationFrame(go); });
+      toks.forEach((t, i) => t.setAttribute('class', 'tok on' + ((i % 10) >= band && (i % 10) < band + 3 ? ' hl' : '')));
+    }
+    function run(){
+      reset(); mech.className = 'mech p0'; setStep(0);
+      later(() => { mech.className = 'mech p1'; setStep(1); toks.forEach((t, i) => later(() => t.setAttribute('class', 'tok on'), 25 * i)); later(() => once.style.opacity = 1, 2600); }, 3200);
+      later(() => { mech.className = 'mech p2'; setStep(2); wires.forEach(w => w.setAttribute('opacity', 1)); rv.currentTime = 0; rv.play().catch(() => {});
+        let k = 0; loopT = setInterval(() => { readPulse(Math.min(7, Math.floor(k / 2))); if (++k === 4) setStep(3); }, 650); }, 7200);
+      later(run, 7200 + 10500);
+    }
+    if (reduce) { setStep(2); toks.forEach(t => t.setAttribute('class', 'tok on')); wires.forEach(w => w.setAttribute('opacity', 1)); once.style.opacity = 1; }
+    else run();
+  })();
+
+  // ---------- 02 wheel ----------
+  const BEAR = [0,30,60,90,120,150,180,210,240,270,300,330], TRAINED_A = [0,60,180,270,330], NEWDIR = [90,120,150];
+  const kind = (obj, b) => NEWDIR.includes(b) ? 'dir' : obj === 'b' ? 'object' : TRAINED_A.includes(b) ? 'pair' : 'pairing';
+  const LBL = {pair:'trained pair', pairing:'new pairing', object:'new object', dir:'new direction'};
+  let obj = 'a';
+  const wheel = document.getElementById('wheelbox');
+  function dial(){
+    const s = el('svg', {class:'dial', viewBox:'0 0 100 100', 'aria-hidden':'true'}), r0 = 30, p = a => [50 + r0 * Math.cos(rad(a)), 50 - r0 * Math.sin(rad(a))];
+    const [x1, y1] = p(80), [x2, y2] = p(160);
+    el('path', {class:'gap', d:`M50 50 L${x1} ${y1} A${r0} ${r0} 0 0 0 ${x2} ${y2} Z`}, s);
+    el('circle', {class:'ring', cx:50, cy:50, r:r0, 'vector-effect':'non-scaling-stroke'}, s);
+    BEAR.forEach(b => { const [x, y] = p(b), q = [50 + (r0 - 2.5) * Math.cos(rad(b)), 50 - (r0 - 2.5) * Math.sin(rad(b))];
+      el('line', {class:'spk', x1:q[0], y1:q[1], x2:x, y2:y, 'vector-effect':'non-scaling-stroke'}, s); });
+    return s;
+  }
+  function drawWheel(){
+    wheel.replaceChildren(dial());
+    const c = document.createElement('div'); c.className = 'center';
+    c.innerHTML = `<span class="instr">move the mouse</span><br>${obj === 'a' ? 'one training object, twelve demonstrated goals' : 'a mouse never manipulated in training'}`;
+    wheel.append(c); const vids = [];
+    BEAR.forEach(b => {
+      const k = kind(obj, b), f = document.createElement('figure'); f.className = 'k-' + k; f.dataset.t = k;
+      const [box, v] = tile(`static/videos/dir_${obj}_${String(b).padStart(3, '0')}.mp4`, {arrow:b, s0:DEMO0}); vids.push(v);
+      const cap = document.createElement('figcaption'); cap.innerHTML = `<span class="d">${b}°</span><span>${LBL[k]}</span>`;
+      f.append(box, cap); f.style.left = (50 + 41 * Math.cos(rad(b))) + '%'; f.style.top = (50 - 41 * Math.sin(rad(b))) + '%';
+      f.style.order = (90 - b + 360) % 360; wheel.append(f);
+    });
+    sync(vids);
+    document.querySelectorAll('#types > div').forEach(t => t.classList.toggle('off', !BEAR.some(b => kind(obj, b) === t.dataset.t)));
+  }
+  document.querySelectorAll('[data-obj]').forEach(b => b.addEventListener('click', () => { obj = b.dataset.obj; pressed('[data-obj]', b); drawWheel(); }));
+  document.querySelector('[data-ov]').addEventListener('click', e => { const on = e.currentTarget.getAttribute('aria-pressed') !== 'true';
+    e.currentTarget.setAttribute('aria-pressed', String(on)); wheel.classList.toggle('hide-ov', !on); });
+  drawWheel();
+
+  // ---------- 03 swap grid ----------
+  const SW = {
+    bread: {cols:[['own',240,245,1],['wrong1',0,1,0],['wrong2',30,28,0],['wrong3',60,58,0],['nodemo',null,36,0]], goal:240,
+            note:'In the paper’s 10 recorded episodes of this setup: own demonstrations succeed in 8/10; swapped-in 0°, 30° and 60° demonstrations land within 12° of that direction in 10/10, 9/10 and 10/10. The bread was never manipulated in training.'},
+    mouse: {cols:[['own',300,302,1],['wrong1',30,23,0],['wrong2',60,56,0],['wrong3',180,181,0],['nodemo',null,7,0]], goal:300,
+            note:'In the paper’s 10 recorded episodes of this setup: own demonstrations succeed in 9/10; swapped-in 30°, 60° and 180° demonstrations land within 12° of that direction in 9/10, 7/10 and 7/10. This mouse was never manipulated in training.'}
+  };
+  let swObj = 'bread';
+  function drawSwap(){
+    const g = document.getElementById('swapgrid'), S = SW[swObj]; g.replaceChildren(); const vids = [];
+    S.cols.forEach(([arm, demo, land, ok]) => {
+      const f = document.createElement('figure'), st = document.createElement('div'); st.className = 'stack';
+      if (demo != null) { const [db] = tile(`static/videos/swapdemo_${swObj}_${String(demo).padStart(3, '0')}.mp4`, {tag:'demo', arrow:demo, s0:DEMO0}); st.append(db); }
+      else { const ph = document.createElement('div'); ph.className = 'vbox'; ph.style.cssText = 'display:flex;align-items:center;justify-content:center;color:#bbb;font-size:13px;text-align:center;padding:8px';
+        ph.textContent = 'no demonstrations'; st.append(ph); }
+      const [rb, rv] = tile(`static/videos/swap_${swObj}_${arm}.mp4`, {tag:arm === 'nodemo' ? 'multi-task LoRA' : 'READ', res:`→ ${land}°`, ok, arrow:demo, dashed:arm !== 'own' && demo != null});
+      vids.push(rv); st.append(rb);
+      const cap = document.createElement('figcaption');
+      cap.innerHTML = arm === 'own' ? `<b>Own demos, ${demo}°</b><br>success` : arm === 'nodemo' ? `<b>No demos</b><br>asked for ${S.goal}°` : `<b>Swapped to ${demo}°</b><br>${Math.abs(((land - demo + 540) % 360) - 180)}° from the demos`;
+      f.append(st, cap); g.append(f);
+    });
+    sync(vids);
+    document.getElementById('swapnote').textContent = 'Top: one of the five demonstrations given. Bottom: the rollout, 2× speed, first evaluation seed (not selected), re-recorded at 4× resolution with the paper’s checkpoints; the no-demo clip is the paper’s own evaluation video. ' + S.note;
+  }
+  document.querySelectorAll('[data-sw]').forEach(b => b.addEventListener('click', () => { swObj = b.dataset.sw; pressed('[data-sw]', b); drawSwap(); }));
+  drawSwap();
+
+  // ---------- 04 coverage + beyond (videos) ----------
+  const COV = {240:{shared:273, scattered:244, sh:'1/10', sc:'8/10'}, 300:{shared:279, scattered:306, sh:'0/10', sc:'8/10'}};
+  let covB = 240;
+  function drawCov(){
+    const g = document.getElementById('covgrid'), C = COV[covB]; g.replaceChildren(); const vids = [];
+    [['shared', 'Shared split', 'drifts to a direction it trained'], ['scattered', 'Scattered split', 'follows the demonstrated goal']].forEach(([k, t, d]) => {
+      const f = document.createElement('figure');
+      const [b, v] = tile(`static/videos/cov_${k}_${covB}.mp4`, {tag:t, res:`→ ${C[k]}°`, ok:k === 'scattered', arrow:covB}); vids.push(v);
+      const cap = document.createElement('figcaption'); cap.innerHTML = `<b>${t}</b> · ${d}`; f.append(b, cap); g.append(f);
+    });
+    sync(vids);
+    document.getElementById('covnote').textContent = `Same mouse, same initial state, demonstrations of ${covB}°; first evaluation seed (not selected), re-recorded at 4× resolution with the paper’s checkpoints, 2× speed. In the paper’s 10 recorded episodes: shared ${C.sh}, scattered ${C.sc} successes.`;
+  }
+  document.querySelectorAll('[data-cov]').forEach(b => b.addEventListener('click', () => { covB = +b.dataset.cov; pressed('[data-cov]', b); drawCov(); }));
+  drawCov();
+  (function(){
+    const g = document.getElementById('beygrid'), vids = [];
+    [['read', 'READ', 144, 'pulled toward a trained direction'], ['carry', '+ carrying data', 116, 'reaches the goal'], ['reach', '+ reaching data', 72, 'pulled the other way']].forEach(([k, t, land, d]) => {
+      const f = document.createElement('figure');
+      const [b, v] = tile(`static/videos/beyond_${k}_120.mp4`, {tag:t, res:`→ ${land}°`, ok:k === 'carry', arrow:120}); vids.push(v);
+      const cap = document.createElement('figcaption'); cap.innerHTML = `<b>${t}</b> · ${d}`; f.append(b, cap); g.append(f);
+    });
+    sync(vids);
+  })();
+
+  // ---------- polar plots ----------
+  const R = 100;
+  function rng(seed){ let s = seed >>> 0 || 1; return () => (s = (s * 1664525 + 1013904223) >>> 0) / 4294967296; }
+  function polar(id, n){
+    const s = document.getElementById(id);
+    el('circle', {class:'bg', cx:0, cy:0, r:R}, s);
+    for (let b = 0; b < 360; b += 30) el('line', {class:'tick', x1:(R - 7) * Math.cos(rad(b)), y1:-(R - 7) * Math.sin(rad(b)), x2:R * Math.cos(rad(b)), y2:-R * Math.sin(rad(b))}, s);
+    const gSpk = el('g', {}, s), gSec = el('g', {}, s), gSwap = el('g', {}, s), gDot = el('g', {}, s);
+    el('rect', {class:'start', x:-6, y:-4.5, width:12, height:9, rx:1.5}, s);
+    const dots = []; for (let i = 0; i < n; i++) dots.push(el('circle', {class:'dot', r:4.2, cx:0, cy:0, style:'opacity:0'}, gDot));
+    return {gSpk, gSec, gSwap, dots};
+  }
+  const wedge = (a, half, r) => { const p = t => `${r * Math.cos(rad(t))} ${-r * Math.sin(rad(t))}`; return `M0 0 L${p(a - half)} A${r} ${r} 0 0 0 ${p(a + half)} Z`; };
+  const setSector = (P, a) => { P.gSec.replaceChildren(); if (a != null) el('path', {class:'sector', d:wedge(a, 12, R)}, P.gSec); };
+  const setSwap = (P, a) => { P.gSwap.replaceChildren(); if (a != null) el('path', {class:'swap', d:wedge(a, 12, R)}, P.gSwap); };
+  function setSpokes(P, spokes, maxLen){ P.gSpk.replaceChildren(); const mx = Math.max(1, ...Object.values(spokes));
+    for (const b in spokes) { const v = spokes[b]; if (!v) continue; const L = maxLen * (0.35 + 0.65 * v / mx);
+      el('line', {class:'spoke', x1:0, y1:0, x2:L * Math.cos(rad(+b)), y2:-L * Math.sin(rad(+b))}, P.gSpk); } }
+  function setDots(P, L, color, seed){ const r = rng(seed);
+    P.dots.forEach((d, i) => { if (i < L.length) { const a = rad(L[i]), rr = R * (0.5 + 0.42 * r());
+      d.style.transform = `translate(${rr * Math.cos(a)}px, ${-rr * Math.sin(a)}px)`; d.style.opacity = 1; d.style.fill = color; }
+      else { d.style.transform = 'translate(0px, 0px)'; d.style.opacity = 0; } }); }
+  const E = D.evidence;
+  const PS = polar('pl-swap', Math.max(E.own.length, E.swap30.length, E.nodemo.length)); setSector(PS, 240);
+  let swapK = 'own';
+  const drawDial = () => { setSwap(PS, swapK === 'swap30' ? 30 : null); setDots(PS, E[swapK], css(swapK === 'nodemo' ? '--nodemo' : '--read'), 7); };
+  document.querySelectorAll('[data-swap]').forEach(b => b.addEventListener('click', () => { swapK = b.dataset.swap; pressed('[data-swap]', b); drawDial(); }));
+  const C = D.coverage, PT = polar('pl-train', 0), P240 = polar('pl-240', 150), P300 = polar('pl-300', 150);
+  setSector(P240, 240); setSector(P300, 300);
+  let split = 'shared';
+  function drawSplit(){
+    setSpokes(PT, D.spokes[split], 92);
+    document.getElementById('cov-ndir').textContent = Object.values(D.spokes[split]).filter(v => v > 0).length;
+    [[P240, 240], [P300, 300]].forEach(([P, b]) => { const x = C[`${split}_${b}`]; setDots(P, x.landings, css('--read'), b);
+      const n = document.getElementById(`cov-${b}`); n.textContent = Math.round(100 * x.succ / x.n) + '%'; n.style.color = x.succ / x.n > .5 ? css('--accent') : '';
+      document.getElementById(`cov-${b}n`).textContent = `${x.succ}/${x.n}`; });
+  }
+  document.querySelectorAll('[data-split]').forEach(b => b.addEventListener('click', () => { split = b.dataset.split; pressed('[data-split]', b); drawSplit(); clearInterval(auto); }));
+  // the split dials animate on their own until someone clicks
+  let auto = reduce ? null : setInterval(() => { split = split === 'shared' ? 'scattered' : 'shared'; pressed('[data-split]', document.querySelector(`[data-split="${split}"]`)); drawSplit(); }, 3800);
+  requestAnimationFrame(() => { drawDial(); drawSplit(); });
+
+  // ---------- 05/06/07 galleries ----------
+  function fig(src, title, extra, opts){ const f = document.createElement('figure'); const [b] = tile(src, opts); const c = document.createElement('figcaption');
+    c.innerHTML = `${title}${extra ? `<span>${extra}</span>` : ''}`; f.append(b, c); return f; }
+  [['translate','translate','both'],['yaw','rotate','both'],['tilt','tilt','broad'],['place','place','broad'],['drag','drag','broad'],['push','push','broad'],['combo','sequence','broad']]
+    .forEach(([f, t, s]) => document.getElementById('g-train').append(fig(`static/videos/beh_train_${f}.mp4`, t, s === 'both' ? 'both sets' : 'broad set')));
+  [['newdir','new direction'],['sequence','new sequence'],['tap','tap'],['drop','drop'],['shake','shake'],['circle','circle']]
+    .forEach(([f, t]) => document.getElementById('g-held').append(fig(`static/videos/beh_held_${f}.mp4`, t)));
+  [['circle','Circle'],['drop','Drop'],['shake','Shake']].forEach(([k, t]) => {
+    const f = document.createElement('figure'), st = document.createElement('div'); st.className = 'stack';
+    const [a] = tile(`static/videos/beh_held_${k}.mp4`, {tag:'demonstration'}), [b] = tile(`static/videos/fail_${k}_broad.mp4`, {tag:'READ, broad set'});
+    st.append(a, b); const c = document.createElement('figcaption'); c.innerHTML = `<b>${t}</b>`; f.append(st, c); document.getElementById('fails').append(f); });
+  (function(){ const g = document.getElementById('libero'), vids = [];
+    [['read','READ, 5 demonstrations','success',1],['mtl','Multi-task LoRA, instruction only','timeout',0]].forEach(([k, t, r, ok]) => {
+      const f = document.createElement('figure'); const [b, v] = tile(`static/videos/libero_t2_${k}.mp4`, {tag:t, res:r, ok, ratio:'1/1'}); vids.push(v);
+      f.append(b); g.append(f); }); sync(vids); })();
+
+  // ---------- sticky toc highlight ----------
+  const links = [...document.querySelectorAll('#toc a')];
+  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) links.forEach(a => a.classList.toggle('on', a.getAttribute('href') === '#' + e.target.id)); }), {rootMargin:'-40% 0px -55% 0px'});
+  document.querySelectorAll('section[id]').forEach(s => io.observe(s));
+})();
+</script>
+</body>
+</html>
