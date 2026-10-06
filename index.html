@@ -107,11 +107,12 @@ section{padding-top:84px}
 .hide-ov .ov{display:none}
 /* method diagram */
 .mech{overflow-x:auto;padding:26px 0 4px}
-.mech-in{position:relative;min-width:760px;aspect-ratio:1000/500}
+.mech-in{position:relative;min-width:820px;aspect-ratio:1000/520}
 .mech-in svg.flow{position:absolute;inset:0;width:100%;height:100%;display:block;overflow:visible}
 .mech-in .vbox{position:absolute;width:auto;border-radius:2px;outline:2px solid transparent;outline-offset:2px;transition:outline-color .4s}
 .mech.p0 .mech-in .vbox.dm{outline-color:var(--accent)}
 .mech.p2 .mech-in .vbox.obs{outline-color:var(--read)}
+.mech-in .vbox.still img{display:block;width:100%;height:100%;object-fit:cover}
 .flow text{font-family:Inter,sans-serif;fill:var(--ink);font-size:13px}
 .flow text.sm{font-size:11.5px;fill:var(--muted)}
 .flow text.kick{font:500 10.5px "JetBrains Mono",monospace;fill:var(--muted);letter-spacing:.08em}
@@ -144,10 +145,10 @@ section{padding-top:84px}
 .wheel figure figcaption span:last-child{color:var(--k);font-weight:600}
 .wheel figure .vbox{outline:3px solid var(--k);outline-offset:-3px}
 .wheel figure[data-t="dir"] .vbox{outline-style:dashed}
-.wheel .center{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:22%;text-align:center;font-size:13px;line-height:1.4;color:var(--muted)}
+.wheel .center{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:30%;text-align:center;font-size:13px;line-height:1.4;color:var(--muted)}
 .dial .ring{fill:none;stroke:var(--line2);stroke-width:1}
 .dial .spk{stroke:var(--line2);stroke-width:1}
-.dial .gap{fill:var(--t-dir);opacity:.11}
+.dial .gap{fill:var(--t-dir);opacity:.13}
 .dial text{font:500 1.55px Inter,sans-serif;fill:var(--t-dir)}
 .k-pair{--k:var(--t-pair)} .k-pairing{--k:var(--t-pairing)} .k-object{--k:var(--t-object)} .k-dir{--k:var(--t-dir)}
 .legend4{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:26px}
@@ -203,6 +204,9 @@ section{padding-top:84px}
 .splits .polars{gap:8px}
 .splits .polar svg{max-width:170px}
 .splits .polar .n{font-size:28px}
+.splits.cov2{margin-bottom:6px}
+.splits.cov2 .grp.sc{border-top-color:var(--read)}
+.splits.cov2 .grp.sc h4{color:var(--read)}
 /* behaviours */
 .gal{display:grid;grid-template-columns:repeat(7,1fr);gap:10px}
 .gal.h6{grid-template-columns:repeat(6,1fr)}
@@ -294,7 +298,7 @@ footer{padding:70px 20px 50px}
 </header>
 
 <div class="hero">
-  <video id="hero" src="static/videos/hero_teaser.mp4" poster="static/img/hero_poster.jpg" muted loop autoplay playsinline preload="auto"
+  <video id="hero" src="static/videos/hero_teaser.mp4" poster="static/img/hero_poster.jpg" muted loop autoplay playsinline preload="metadata"
     aria-label="The same scene and instruction with four different sets of demonstrations; the robot moves the bread wherever the demonstrations show."></video>
 </div>
 <p class="prose cap">One scene, one instruction, <span class="instr">move the bread</span>. Only the five demonstrations change, and the
@@ -311,8 +315,8 @@ footer{padding:70px 20px 50px}
   </div>
   <div class="wide">
     <div class="mech p0" id="mech"><div class="mech-in" id="mech-in">
-      <svg class="flow" id="flow" viewBox="0 0 1000 500" role="img"
-        aria-label="Five demonstrations pass through a demonstration encoder into memory tokens. The policy receives camera images, robot state and an instruction; readers in the last six blocks of its action expert query the memory to produce actions."></svg>
+      <svg class="flow" id="flow" viewBox="0 0 1000 520" role="img"
+        aria-label="Five demonstrations pass through a demonstration encoder into memory tokens. The policy receives camera images, robot state and an instruction; readers in the last six blocks of its action expert query the memory to produce the actions the robot executes."></svg>
     </div></div>
     <div class="prose" style="padding:0">
       <div class="step" id="mech-step"></div>
@@ -363,13 +367,15 @@ footer{padding:70px 20px 50px}
   <div class="prose">
     <span class="sec-n">03</span>
     <h2>Does the policy actually follow them?</h2>
-    <p>A policy could ignore the demonstrations and still succeed sometimes, by moving each object its favorite way. Two controls
-      separate that from following them, both from <b>the same initial state</b> and with the same instruction.</p>
+    <p>Every task of an object starts from the same scene and instruction, so a policy could ignore the demonstrations, always move
+      the object in one default direction, and still succeed on the tasks that ask for that direction. Two controls separate that
+      from following them, both from <b>the same initial state</b> and with the same instruction.</p>
     <p><b>Swap the demonstrations.</b> READ gets demonstrations of a different direction. If it reads them, the object should go
       where the new demonstrations point.</p>
     <p><b>Remove the demonstrations.</b> The <b>multi-task LoRA</b> baseline is READ without its encoder and readers: the same
-      π<sub>0.5</sub> with a LoRA trained on the same tasks, from instructions alone. Because the instruction names only the object,
-      this baseline shows what scene and text can do on their own.</p>
+      π<sub>0.5</sub> with a LoRA trained on the same tasks, from instructions alone. Here the instruction is again <span class="instr">move the bread</span> (or
+      <span class="instr">move the coffee box</span>): it names the object and never the direction, so this baseline shows what
+      the scene and the instruction can do on their own.</p>
     <div class="tabs" role="group" aria-label="Object">
       <span class="hint">Object</span>
       <button type="button" data-sw="bread" aria-pressed="true">Bread, demos show 240°</button>
@@ -389,7 +395,7 @@ footer{padding:70px 20px 50px}
         <svg class="pl" id="pl-own" viewBox="-115 -115 230 230" role="img" aria-label="Landing angles with the task's own demonstrations"></svg></div>
       <div class="polar"><div class="t">READ, demonstrations swapped to 30°<small>follows the swap</small></div>
         <svg class="pl" id="pl-swap" viewBox="-115 -115 230 230" role="img" aria-label="Landing angles with demonstrations of 30 degrees"></svg></div>
-      <div class="polar"><div class="t">Multi-task LoRA, no demonstrations<small>a default direction, whatever is asked</small></div>
+      <div class="polar"><div class="t">Multi-task LoRA, no demonstrations<small>scattered widely, mostly within 90° of 0°</small></div>
         <svg class="pl" id="pl-nodemo" viewBox="-115 -115 230 230" role="img" aria-label="Landing angles of the baseline without demonstrations"></svg></div>
     </div>
     <p class="cap" style="text-align:center">Every evaluation episode of the bread at 240°. Radial position is spread only to reduce overlap.</p>
@@ -408,14 +414,19 @@ footer{padding:70px 20px 50px}
   <div class="prose">
     <span class="sec-n">04</span>
     <h2>What in the training data makes this possible?</h2>
-    <p>Two READ models see nearly the same number of demonstrations: each of 37 objects in five directions. The <b>shared</b>
-      model trains every object in the same five; the <b>scattered</b> model varies them across objects, covering nine directions
-      overall. Neither has trained this bread or this coffee box at 240°, but only the scattered model has seen <i>other</i> objects move that way.</p>
+    <p>Two READ models train each of 37 objects in five directions, with nearly the same number of episodes (3,680 and 3,700).
+      The <b>shared split</b> trains every object in the same five directions (30, 180, 210, 270 and 330°). The <b>scattered split</b>
+      gives each object a different five of nine directions: all nine are trained, but each with only 19–22 of the 37 objects.
+      Neither model has trained the bread or the coffee box below at 240°; only the scattered model has seen <i>other</i> objects
+      move that way.</p>
     <div class="big"><span>1%</span><span class="to">→</span><span class="hi">79%</span></div>
-    <p class="cap" style="margin-top:6px">success on these new object–direction pairings, shared vs scattered, at nearly the same data budget.</p>
+    <p class="cap" style="margin-top:6px">success on new pairings of trained objects and directions, shared split vs scattered split, with nearly the same data.</p>
   </div>
   <div class="wide" style="margin-top:14px">
-    <div class="row r4" id="covgrid"></div>
+    <div class="splits cov2">
+      <div class="grp"><h4>Shared split</h4><p>has never seen any object move toward 240°</p><div class="row r2" id="cov-shared"></div></div>
+      <div class="grp sc"><h4>Scattered split</h4><p>has seen other objects move toward 240°</p><div class="row r2" id="cov-scattered"></div></div>
+    </div>
     <p class="cap" id="covnote"></p>
   </div>
   <div class="wide" style="margin-top:40px">
@@ -435,15 +446,19 @@ footer{padding:70px 20px 50px}
           <div class="polar"><svg class="pl" id="pl-sc-300" viewBox="-115 -115 230 230" role="img" aria-label="Scattered split: landings for 300 degrees"></svg><div class="n hi" id="n-sc-300"></div><div class="c">demos show 300°</div></div>
         </div></div>
     </div>
-    <p class="cap" style="text-align:center">Success on three test objects, every evaluation episode (150 per plot). On objects never manipulated in
-      training, the same two directions: 3% vs 78%.</p>
+    <p class="cap" style="text-align:center">Three training objects (a mouse, a bread and a coffee box) at 240° and 300°, every evaluation
+      episode (150 per plot). The shared model moves them toward its trained 270°. On three objects never manipulated in training,
+      the two models are close at directions both splits train (68% vs 78%) and far apart at these two (3% vs 78%).</p>
   </div>
 
   <div class="prose" style="margin-top:60px">
     <h3>Beyond the covered directions: carrying helps, reaching doesn't</h3>
-    <p>No training task of any object goes to 90–150°, and there READ is pulled toward the nearest trained directions. Can more
-      data close the gap, and which data? We add 79 tasks at 75, 105, 135 and 165° on <i>other</i> objects, so the tested goals
-      stay untrained, in one of two forms:</p>
+    <p>No training task of any object goes to 90–150°. There the landings follow the demonstrated goal but are pulled toward the
+      neighboring trained directions, 60° and 180°. Can more data close the gap, and which data? We add 79 tasks at 75, 105, 135
+      and 165° on <i>other</i> objects, so the tested goals stay untrained.</p>
+    <p>The added data comes in one of two forms. Carrying episodes practice moving an object. Reaching episodes are cheaper to
+      collect: the open gripper approaches the object and sweeps to just above the goal without touching it. They cover the same
+      directions with the arm alone, so comparing the two separates practice in moving objects from practice in moving the arm.</p>
   </div>
   <div class="wide" style="max-width:760px">
     <div class="row r2" id="datagrid"></div>
@@ -452,7 +467,8 @@ footer{padding:70px 20px 50px}
     <div class="def"><div class="term">the test</div>
       <p>Instruction: <span class="instr">move the bread</span>. The five demonstrations carry the bread 11 cm toward <b>120°</b>,
         up and to the left in the camera view. In the clips, the ring is where the bread starts and the green disc is the goal.</p>
-      <p>A <i>hit</i> is a landing within 7.5° of 120°, closer to the goal than to either neighboring direction in the added data.</p></div>
+      <p>A <i>hit</i>: the object moves at least 5.5 cm and lands less than 7.5° from the demonstrated goal, closer to it than
+        to any training direction. The usual 12° window would count a landing at 109° as reaching 120°, though it is nearer the added 105°.</p></div>
   </div>
   <div class="wide" style="max-width:980px">
     <div class="row r3" id="beygrid"></div>
@@ -473,9 +489,10 @@ footer{padding:70px 20px 50px}
   <div class="prose">
     <span class="sec-n">05</span>
     <h2>More kinds of behavior in training, more that demonstrations can teach</h2>
-    <p>In our Behavior suite the instruction again names only the object, and the demonstrations decide <i>how</i> to move it.
-      Two READ models train on the same 37 objects: a narrow set (hold, translate, rotate) and a broad set that adds tilt, place,
-      drag, push and sequences, with fewer episodes in total.</p>
+    <p>In our Behavior suite the instruction again names only the object, <span class="instr">manipulate the bread</span>, and
+      the demonstrations decide <i>how</i> to move it. Two READ models train on the same 37 objects: a narrow set (hold, translate,
+      rotate) and a broad set that adds tilt, place, drag, push and sequences. The broad set has fewer episodes (3,088 vs 3,626),
+      so it tests richer behavior coverage, not more data.</p>
     <div class="bars">
       <div class="lab">in both sets<small>translate, rotate</small></div>
       <div class="b"><i class="n" style="width:calc(50% * .85)" data-v="50% narrow"></i><i class="br" style="width:calc(53% * .85)" data-v="53% broad"></i></div>
@@ -499,7 +516,8 @@ footer{padding:70px 20px 50px}
     <span class="sec-n">06</span>
     <h2>Where it stops</h2>
     <p>Shown circling, dropping or shaking, the broad-set model picks the object up and falls back to behaviors it was trained on.
-      At nearly fixed data, coverage decided what transferred in both suites; these failures mark what training should cover next.</p>
+      Scattering directions across objects and adding behavior kinds both widened what demonstrations could teach; these failures
+      mark what training data should cover next.</p>
   </div>
   <div class="wide" style="max-width:940px"><div class="row r3" id="fails"></div>
     <p class="cap">Each pair: one of the five demonstrations (another episode of the task, so the scene differs), then READ on a
@@ -512,12 +530,12 @@ footer{padding:70px 20px 50px}
     <span class="sec-n">07</span>
     <h2>Five demonstrations match per-task fine-tuning</h2>
     <p>On ten held-out LIBERO-Gen tasks, which pair familiar pick-up places and destinations in new ways, READ reaches 92.8% from
-      five demonstrations; a LoRA fine-tuned on each task with all 36–49 of its demonstrations reaches 92.5%. The demonstrations
-      matter most where the instruction is hard to ground, as in this task with two identical bowls:</p>
+      five demonstrations; a LoRA fine-tuned on each task with all 36–49 of its demonstrations reaches 92.5%. The scene has two
+      identical black bowls, so an instruction must say which bowl to move and where to put it.</p>
+    <p>Against the same policy without demonstrations (the multi-task LoRA, 85.5%), the gap is largest on the task whose instruction
+      gives both places relative to other objects: READ 98.8%, multi-task LoRA 54.0%.</p>
     <p style="margin-bottom:10px"><span class="instr">pick up the black bowl next to the cookie box and place it in the black bowl next to the ramekin</span></p>
   </div>
-  <div class="wide"><div class="row r2" id="libero" style="max-width:860px;margin:0 auto"></div>
-    <p class="cap" id="libnote" style="max-width:860px;margin-left:auto;margin-right:auto"></p></div>
   <div class="prose" style="margin-top:30px">
     <div class="tscroll"><table>
       <thead><tr><th>Method</th><th>At test time</th><th>Training on the new task</th><th class="num">Success (%)</th></tr></thead>
@@ -532,9 +550,9 @@ footer{padding:70px 20px 50px}
       </tbody></table></div>
     <p class="cap">Full instructions; mean over ten tasks ± std over five evaluation runs of 50 episodes per task. <sup>†</sup>Released
       checkpoints without a pretrained VLA, five sampling seeds.</p>
-    <figure class="fig"><img src="static/img/fig05_results.png" width="2200" height="620" alt="Per-task success and sensitivity to swapped demonstrations on LIBERO-Gen."></figure>
+    <figure class="fig"><img loading="lazy" decoding="async" src="static/img/fig05_results.png" width="2200" height="620" alt="Per-task success and sensitivity to swapped demonstrations on LIBERO-Gen."></figure>
     <p class="cap">(a) Per task. (b) Swapping in another task's demonstrations, with the correct instruction kept, lowers READ's success
-      more than the weight-generating baseline's: READ depends more on what the demonstrations show.</p>
+      more than the weight-generating baseline's, so READ relies more on the demonstrations.</p>
   </div>
 </section>
 
@@ -547,19 +565,21 @@ footer{padding:70px 20px 50px}
       adapts a vision-language-action (VLA) policy from five demonstrations without updating its parameters. A learned encoder turns
       videos, states and actions into memory tokens that the policy queries while generating actions. On ten held-out LIBERO-Gen
       tasks with full instructions, READ achieves 92.8% success, matching per-task LoRA fine-tuning on all available demonstrations
-      (92.5%). We also introduce two controlled benchmarks to ask which training experience makes such adaptation possible. They
-      test whether demonstrations can teach the robot to move familiar objects to new goals, handle new objects, or perform new
-      kinds of manipulation. With nearly the same data budget, training on a wider range of movement goals raises success on
-      selected new object–goal combinations from 1% to 79%. Demonstrations also teach nearby movement variations. Training more
-      behavior kinds enables those added behaviors, while we do not yet observe reliable transfer to six held-out behaviors at this
-      data scale. These results motivate scaling training data to cover the objects, goals and behaviors expected in new demonstrations.</p>
+      (92.5%). Two controlled benchmarks test which training experience enables this adaptation. They test whether demonstrations
+      can teach the robot to move familiar objects to new goals, handle new objects, or perform new kinds of manipulation. With
+      nearly the same data, training on a wider range of movement goals raises success on new pairings of trained objects and goals
+      from 1% to 79%. Demonstrations also teach small changes in translation distance, direction and rotation angle. Adding
+      behaviors to training enables the policy to perform them from demonstrations, while six behaviors absent from training remain
+      difficult at this data scale. These findings motivate scaling data to cover more objects, movement goals and behavior kinds.</p>
     <div class="three">
       <div><b>Reading demonstrations can match per-task fine-tuning.</b>92.8% on LIBERO-Gen from five demonstrations, versus 92.5%
-        for fine-tuning on all available demonstrations.</div>
+        for fine-tuning on all available demonstrations. Swapping the demonstrations lowers READ's success more than that of a
+        baseline that converts them into weights.</div>
       <div><b>Demonstrations teach familiar movements with new objects.</b>A movement learned with some objects can be demonstrated
         with others, including objects never manipulated in training.</div>
-      <div><b>Changing the training tasks changes what demonstrations can teach.</b>Wider coverage of movement goals, at nearly the same
-        data, raises new object–goal pairings from 1% to 79%.</div>
+      <div><b>Changing the training tasks changes what demonstrations can teach.</b>Showing a wider range of movement goals with
+        nearly the same data raises success on new pairings of trained objects and goals from 1% to 79%. Six behaviors absent
+        from both training sets remain out of reach.</div>
     </div>
 
     <h3>Architecture</h3>
@@ -568,25 +588,29 @@ footer{padding:70px 20px 50px}
       and actions; twenty learned queries summarize it together with its instruction, and an aggregator combines the five
       demonstrations into the memory. A reader after each of the last six of the action expert's 18 blocks lets the hidden state
       attend to the memory through a gate that starts at zero, so training starts from π<sub>0.5</sub> with the shared LoRA.</p>
-    <figure class="fig"><img src="static/img/fig01_concept.png" width="2200" height="1072" 
+    <figure class="fig"><img loading="lazy" decoding="async" src="static/img/fig01_concept.png" width="2200" height="1072" 
       alt="READ architecture: demonstrations are encoded once into memory tokens; readers in the action expert of the frozen policy read them at every denoising step."></figure>
     <p class="cap">(a) A trajectory encoder, summary queries and an aggregator build the memory once per task. (b) A reader after
       each of the last six expert blocks lets the hidden state attend to the memory through a zero-initialized gate. Dark bars mark
       the shared LoRA.</p>
     <p style="margin-top:16px">Everything is trained jointly, end to end, with the flow-matching objective used to fine-tune π<sub>0.5</sub>
       and no auxiliary loss. Each update builds the memory from five episodes of a task and predicts the actions of a <i>different</i>
-      episode of the same task, so the policy must act from its own observation and cannot copy a demonstration step by step.</p>
+      episode of the same task. Because that episode starts from a different initial state, the policy cannot copy a demonstration
+      step by step; it must carry the demonstrated task over to the scene it observes.</p>
 
     <h3>Three benchmarks, one question each</h3>
     <p><b>LIBERO-Gen</b>: can reading demonstrations replace fine-tuning? Ten held-out tasks recombine pick-up places and destinations
-      seen in 164 training tasks. <b>Direction suite</b>: how far does the ability reach, and what in the training data sets that?
-      37 objects, twelve directions, with training sets we can rearrange. <b>Behavior suite</b>: does training on more kinds of
-      behavior widen the reach? In the two new suites the instruction names only the object, so only the demonstrations
-      distinguish the tasks.</p>
-    <figure class="fig"><img src="static/img/fig03_suites.png" width="2200" height="520" 
+      seen in 164 training tasks. Its held-out tasks only recombine trained elements and its training set is fixed, so we build two
+      benchmarks whose training sets we can rearrange. <b>Direction suite</b>: 37 objects, each moved 11 cm in one of twelve
+      directions; we control exactly which directions are trained with which objects. <b>Behavior suite</b>: the behavior itself
+      varies, and we ask whether adding behavior kinds widens what demonstrations can teach, as adding directions does. In both
+      suites the instruction names only the object (<span class="instr">move the coffee box</span>,
+      <span class="instr">manipulate the coffee box</span>), so all tasks of an object share one instruction and only the
+      demonstrations show which direction or behavior is requested.</p>
+    <figure class="fig"><img loading="lazy" decoding="async" src="static/img/fig03_suites.png" width="2200" height="520" 
       alt="The Direction suite moves an object toward one of twelve goals; the Behavior suite varies how the object is manipulated."></figure>
     <p class="cap">Left, Direction suite: from the same scene, the robot moves the ringed object 11 cm toward one of twelve goals.
-      Right, Behavior suite: tasks differ in how the object is manipulated; dashed boxes are behaviors held out for testing.</p>
+      Right, Behavior suite: tasks differ in how the object is manipulated; dashed boxes mark held-out test behaviors.</p>
 
     <h3>Direction suite, by kind of test</h3>
     <div class="tscroll"><table>
@@ -626,14 +650,15 @@ footer{padding:70px 20px 50px}
         <tr><td>Demo2LoRA</td><td class="num">20.641</td><td class="num">n/a</td><td class="num">278.2</td><td class="num">+0.3%</td></tr>
         <tr class="ours"><td>READ</td><td class="num">0.195</td><td class="num">50.805</td><td class="num">293.3</td><td class="num">+5.7%</td></tr>
       </tbody></table></div>
-    <p class="cap">One L40S, wall time per fresh action chunk over 360 calls, 100-token LIBERO-Gen memory. The readers query cached
-      tokens; video is never re-encoded during a rollout.</p>
+    <p class="cap">One L40S, wall time over 360 fresh action chunks per configuration, 100-token LIBERO-Gen memory. The readers query
+      a small cached memory; video is never re-encoded during a rollout.</p>
 
     <h3>What comes next</h3>
-    <p>Success on six held-out behaviors stays near zero at our data scale, and goals in untrained directions are hit far more often once
-      carrying data is added nearby (49% vs 11%). We plan to vary data volume and task diversity separately, by sampling behavior programs with
-      different movement directions, distances and segment orders, and to diagnose the encoder, the readers and the action expert
-      separately to see where unfamiliar demonstrations are lost.</p>
+    <p>Reliable transfer to the six held-out behaviors remains unresolved at our data scale, and goals in untrained directions are
+      hit far more often once carrying data is added nearby (49% vs 11%). We plan to vary data volume and task diversity separately,
+      using behavior programs with continuous directions, distances and segment orders. We will also test video-pretrained motion
+      encoders and objectives that represent demonstrated object motion, and diagnose whether failures arise in encoding the
+      demonstrations, retrieving the memory or generating actions.</p>
   </div>
 </section>
 
@@ -652,21 +677,17 @@ footer{padding:70px 20px 50px}
         and on LIBERO-Gen swapping them lowers READ's success more than the weight-generating baseline's.</p></details>
     <details><summary>Why a memory, and not weights generated from the demonstrations?</summary>
       <p>Our Demo2LoRA baseline uses the same encoder, data and loss but writes the demonstrations into per-task LoRA weights before
-        execution. READ keeps a memory the policy can query as its situation changes: 92.8% vs 87.2% on LIBERO-Gen with full
-        instructions, and stronger dependence on demonstration content.</p></details>
+        execution. READ queries its memory while acting, as its observations and predicted actions change: 92.8% vs 87.2% on
+        LIBERO-Gen with full instructions, and it relies more on the demonstrations when they are swapped.</p></details>
     <details><summary>What does it cost at deployment?</summary>
       <p>One encoder pass per task, cached as 0.2 MiB of memory tokens. Each action chunk takes 5.7% longer than the base policy on
-        one L40S (LIBERO-Gen, 100-token memory); the readers query a few hundred cached tokens and video is never re-encoded during rollouts.</p></details>
+        one L40S (LIBERO-Gen, 100-token memory); the readers query a small cached memory and video is never re-encoded during rollouts.</p></details>
     <details><summary>Can it learn completely new behaviors from demonstrations?</summary>
-      <p>Not yet at our data scale. It transfers trained movements to new objects and new pairings, and trained behaviors to nearby
-        distances and angles, but six held-out behaviors stay near zero (section 06). Broader coverage was what helped in both suites,
-        which is why we read these results as a guide for scaling training data.</p></details>
-    <details><summary>How were the video clips chosen?</summary>
-      <p>Rollout clips use the paper's checkpoints, demonstrations and evaluation seeds, re-recorded from the policy's head-camera
-        viewpoint at a higher resolution than the policy sees. Evaluation scenes are randomized; we picked seeds with a plain
-        table so the object is easy to see, and episodes that show the typical outcome of each condition. The rates and landing
-        plots beside the clips cover all evaluation episodes.</p></details>
-  </div>
+      <p>Not yet at our data scale. Demonstrations teach trained movements with new objects and in new object–direction pairings, and small changes in
+        translation distance, direction and rotation angle, but six behaviors absent from both training sets stay near zero
+        (section 06). Scattering directions across objects and adding behavior kinds both widened what could be taught, which is
+        why we read these results as a guide for where to add training data.</p></details>
+    </div>
 </section>
 
 <footer></footer>
@@ -682,9 +703,18 @@ footer{padding:70px 20px 50px}
   const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const pad3 = b => String(b).padStart(3, '0');
-  function video(src, loop = true){ const v = document.createElement('video'); v.src = src; v.muted = true; v.loop = loop; v.autoplay = true; v.playsInline = true;
-    v.setAttribute('muted', ''); v.setAttribute('playsinline', ''); v.preload = 'auto'; return v; }
-  function sync(vids){ let n = 0; vids.forEach(v => v.addEventListener('canplaythrough', () => { if (++n === vids.length) vids.forEach(x => { x.currentTime = 0; x.play().catch(() => {}); }); }, {once:true})); }
+  // Clips are fetched only when they come near the viewport and play only while on screen: the page never
+  // downloads or decodes all of its videos at once.
+  const want = v => { if (!v.getAttribute('src') && v.dataset.src) { v.src = v.dataset.src; v.load(); } };
+  const loadIO = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { want(e.target); loadIO.unobserve(e.target); } }), {rootMargin:'900px 0px'});
+  const playIO = new IntersectionObserver(es => es.forEach(e => { const v = e.target; v.dataset.vis = e.isIntersecting ? '1' : '';
+    if (e.isIntersecting) { want(v); v.play().catch(() => {}); } else v.pause(); }), {rootMargin:'80px 0px'});
+  function video(src, loop = true){ const v = document.createElement('video'); v.dataset.src = src; v.muted = true; v.loop = loop; v.playsInline = true;
+    v.setAttribute('muted', ''); v.setAttribute('playsinline', ''); v.preload = 'auto';
+    v.addEventListener('canplay', () => { if (v.dataset.vis) v.play().catch(() => {}); });
+    loadIO.observe(v); playIO.observe(v); return v; }
+  function sync(vids){ let n = 0; vids.forEach(v => v.addEventListener('canplaythrough', () => { if (++n === vids.length) vids.forEach(x => { x.currentTime = 0; if (x.dataset.vis) x.play().catch(() => {}); }); }, {once:true})); }
+  playIO.observe(document.getElementById('hero'));
   // 11 cm on the table, in the 320x240 head-camera image
   const RX = 56, RY = 47;
   function ov(s0, b, dashed, target){
@@ -707,60 +737,64 @@ footer{padding:70px 20px 50px}
     if (res) { const r = document.createElement('span'); r.className = 'res' + (ok ? ' ok' : ''); r.textContent = res; box.append(r); }
     return [box, v];
   }
-  const C = {"wheel": {"trained": [30, 180, 210, 270, 330]}, "swap": {"bread": {"goal": 240, "cols": [["own", 240, 250, 1], ["wrong1", 0, 358, 0], ["wrong2", 30, 28, 0], ["wrong3", 60, 53, 0], ["nodemo", null, 344, 0]], "note": "In the paper's 10 recorded episodes of this setup: own demonstrations succeed in 8/10; swapped-in 0°, 30° and 60° demonstrations land within 12° of that direction in 10/10, 9/10 and 10/10; the multi-task LoRA succeeds in 1/10. This bread was never manipulated in training."}, "coffeebox": {"goal": 240, "cols": [["own", 240, 247, 1], ["wrong1", 0, 7, 0], ["wrong2", 30, 34, 0], ["wrong3", 60, 54, 0], ["nodemo", null, 323, 0]], "note": "In the paper's 10 recorded episodes of this setup: own demonstrations succeed in 8/10; swapped-in 0°, 30° and 60° demonstrations land within 12° of that direction in 9/10 each; the multi-task LoRA succeeds in 0/10. This coffee box is a training object, but it was never trained at 240°.", "demo0": [226, 164]}}, "cov": [["Bread", "bread", [277, 0], [248, 1]], ["Coffee box", "coffeebox", [283, 0], [247, 1]]], "covnote": "Same object, same initial state, demonstrations of 240°; 2× speed. Both are training objects that neither model trained at 240°. In the paper's 10 recorded episodes of each: bread, shared 0/10 vs scattered 7/10; coffee box, 0/10 vs 8/10.", "bey": [["read", "READ", 140, 0, "20° off, pulled toward a trained direction"], ["carry", "+ carrying data", 111, 1, "9° from the goal, completes the task"], ["reach", "+ reaching data", 40, 0, "80° off, the other way"]], "beynote": "Clips: the same bread, never manipulated in training, from the same initial state, 2× speed. Plots: every evaluation episode with a 120° goal; the green sector is the ±7.5° hit zone. On this bread at 120°, full task success in the paper: READ 0/50, with carrying data 42/50, with reaching data 0/50.", "libero": [["read", "READ, 5 demonstrations", "bowl placed · success", 1, "<b>READ</b> · places the bowl in the bowl next to the ramekin"], ["mtl", "Multi-task LoRA, instruction only", "never placed · timeout", 0, "<b>Multi-task LoRA</b> · takes the right bowl to the right spot, but leaves it tilted on the rim and never lets go"]], "libnote": "Same initial state, 2× speed, view cropped to the bowls. On this task: READ 98.8% vs multi-task LoRA 54.0% in the paper (5×50 episodes); 10/10 vs 7/10 in the ten episodes re-recorded for this page."};
+  const C = {"wheel": {"trained": [30, 180, 210, 270, 330]}, "swap": {"bread": {"goal": 240, "cols": [["own", 240, 250, 1], ["wrong1", 0, 358, 0], ["wrong2", 30, 28, 0], ["wrong3", 60, 53, 0], ["nodemo", null, 344, 0]], "note": "In the paper's 10 recorded episodes of this setup: own demonstrations succeed in 8/10; swapped-in 0°, 30° and 60° demonstrations land within 12° of that direction in 10/10, 9/10 and 10/10; the multi-task LoRA succeeds in 1/10. This bread was never manipulated in training."}, "coffeebox": {"goal": 240, "cols": [["own", 240, 247, 1], ["wrong1", 0, 7, 0], ["wrong2", 30, 34, 0], ["wrong3", 60, 54, 0], ["nodemo", null, 323, 0]], "note": "In the paper's 10 recorded episodes of this setup: own demonstrations succeed in 8/10; swapped-in 0°, 30° and 60° demonstrations land within 12° of that direction in 9/10 each; the multi-task LoRA succeeds in 0/10. This coffee box is a training object, but it was never trained at 240°.", "demo0": [226, 164]}}, "cov": [["Bread", "bread", [277, 0], [248, 1]], ["Coffee box", "coffeebox", [283, 0], [247, 1]]], "covnote": "Same object, same initial state, demonstrations of 240°; 2× speed. Both are training objects that neither model trained at 240°. In the paper's 10 recorded episodes of each: bread, shared 0/10 vs scattered 7/10; coffee box, 0/10 vs 8/10.", "bey": [["read", "READ", 140, 0, "20° off, pulled toward a trained direction"], ["carry", "+ carrying data", 111, 1, "9° from the goal, completes the task"], ["reach", "+ reaching data", 40, 0, "80° off, the other way"]], "beynote": "Clips: the same bread, never manipulated in training, from the same initial state, 2× speed. Plots: every evaluation episode with a 120° goal; the green sector is the ±7.5° hit zone. On this bread at 120°, full task success in the paper: READ 0/50, with carrying data 42/50, with reaching data 0/50."};
 
   // ---------- 01 method diagram ----------
   (function(){
     const mech = document.getElementById('mech'), inn = document.getElementById('mech-in'), svg = document.getElementById('flow');
-    const place = (box, x, y, w) => { box.style.left = x / 10 + '%'; box.style.top = y / 5 + '%'; box.style.width = w / 10 + '%'; inn.append(box); };
+    const VH = 520, place = (box, x, y, w) => { box.style.left = x / 10 + '%'; box.style.top = y / VH * 100 + '%'; box.style.width = w / 10 + '%'; inn.append(box); };
     const arrow = (x1, y1, x2, y2) => { el('path', {class:'wire', d:`M${x1} ${y1} L${x2 - 5} ${y2}`}, svg); el('path', {class:'ahead', d:`M${x2} ${y2} l-7 -4 v8 Z`}, svg); };
     // --- once per new task: demonstrations -> encoder -> memory
     txt(svg, 20, 16, 'ONCE PER NEW TASK', {class:'kick'});
     for (let i = 0; i < 5; i++) {
-      const x = 20 + 104 * i; const [b] = tile(`static/videos/m_demo_${i}.mp4`); b.classList.add('dm'); place(b, x, 28, 96);
-      for (let k = 0; k < 12; k++) el('rect', {class:'bar', x:x + k * 8, y:108, width:6, height:4, rx:1}, svg);
+      const x = 20 + 132 * i; const [b] = tile(`static/videos/m_demo_${i}.mp4`); b.classList.add('dm'); place(b, x, 28, 124);
+      for (let k = 0; k < 12; k++) el('rect', {class:'bar', x:x + k * 10.4, y:128, width:8, height:4, rx:1}, svg);
     }
-    txt(svg, 20, 130, '5 demonstrations of the new task: camera video, robot states, actions', {class:'sm'});
-    arrow(540, 64, 588, 64);
-    el('rect', {class:'box enc', x:590, y:34, width:122, height:60, rx:4}, svg);
-    txt(svg, 651, 60, 'demonstration', {'text-anchor':'middle'}); txt(svg, 651, 77, 'encoder', {'text-anchor':'middle'});
-    arrow(712, 64, 744, 64);
-    const toks = [], gx = 748, gy = 40, c = 11;
-    for (let r = 0; r < 5; r++) for (let q = 0; q < 20; q++) toks.push(el('rect', {class:'tok', x:gx + q * c, y:gy + r * c, width:c - 2.5, height:c - 2.5, rx:1}, svg));
-    txt(svg, gx, 30, 'memory'); const once = txt(svg, gx + 217, 30, 'written once, then cached', {class:'sm', 'text-anchor':'end'});
-    // --- at every step: the usual inputs of pi0.5 -> VLM -> action expert (+ readers) -> actions
-    txt(svg, 20, 222, 'AT EVERY STEP', {class:'kick'});
-    txt(svg, 20, 239, 'camera images', {class:'sm'});
-    const [rb, rv] = tile('static/videos/swap_bread_own.mp4', {arrow:240}); rb.classList.add('obs'); place(rb, 20, 248, 150);
-    txt(svg, 20, 384, 'robot state', {class:'sm'});
-    for (let k = 0; k < 8; k++) el('rect', {class:'bar', x:92 + k * 10, y:377, width:7, height:7, rx:1}, svg);
-    txt(svg, 20, 408, 'instruction', {class:'sm'});
-    el('rect', {x:20, y:415, width:150, height:26, rx:3, fill:'#f9d65c'}, svg);
-    txt(svg, 95, 433, '“move the bread”', {'text-anchor':'middle', style:'fill:#1a1a18;font-weight:500'});
-    el('rect', {class:'frozen', x:226, y:228, width:660, height:232, rx:8}, svg);
-    { const t = txt(svg, 242, 250, 'π', {class:'sm'}); el('tspan', {dy:3, 'font-size':8.5}, t).textContent = '0.5'; el('tspan', {dy:-3}, t).textContent = ' · pretrained weights frozen'; }
-    arrow(178, 336, 250, 336);
-    el('rect', {class:'fbox', x:252, y:290, width:150, height:92, rx:4}, svg);
-    txt(svg, 327, 332, 'vision-language', {'text-anchor':'middle'}); txt(svg, 327, 349, 'model', {'text-anchor':'middle'});
-    arrow(402, 336, 452, 336);
-    const readers = [], bx0 = 460, by0 = 288;
-    for (let k = 0; k < 18; k++) { const x = bx0 + k * 22; el('rect', {class:'blk', x, y:by0, width:13, height:96, rx:2}, svg);
-      if (k >= 12) readers.push([el('circle', {class:'rd', cx:x + 6.5, cy:by0 - 13, r:6}, svg), x + 6.5]); }
-    txt(svg, bx0, 406, 'action expert, 18 blocks', {class:'sm'});
-    txt(svg, bx0 + 17 * 22 + 13, 406, 'readers on the last 6', {class:'sm', 'text-anchor':'end', style:'fill:var(--read)'});
-    const wires = readers.map(([, x], k) => { const mx = gx + 30 + k * 31; return el('path', {class:'rwire', d:`M${mx} ${gy + 5 * c + 1} C ${mx} 170, ${x} 190, ${x} ${by0 - 19}`}, svg); });
+    txt(svg, 20, 152, '5 demonstrations of the new task: camera video, robot states, actions', {class:'sm'});
+    arrow(680, 74, 706, 74);
+    el('rect', {class:'box enc', x:708, y:44, width:104, height:60, rx:4}, svg);
+    txt(svg, 760, 70, 'demonstration', {'text-anchor':'middle'}); txt(svg, 760, 87, 'encoder', {'text-anchor':'middle'});
+    arrow(812, 74, 834, 74);
+    const toks = [], gx = 838, gy = 56, c = 7.6;
+    for (let r = 0; r < 5; r++) for (let q = 0; q < 20; q++) toks.push(el('rect', {class:'tok', x:gx + q * c, y:gy + r * c, width:c - 2, height:c - 2, rx:1}, svg));
+    txt(svg, gx, 30, 'memory'); const once = txt(svg, gx, 46, 'written once, then cached', {class:'sm'});
+    // --- at every step: three inputs -> pi0.5 (VLM -> action expert with readers) -> actions -> the robot moves
+    txt(svg, 20, 226, 'AT EVERY STEP', {class:'kick'});
+    txt(svg, 20, 246, 'camera images', {class:'sm'});
+    { const b = document.createElement('div'); b.className = 'vbox still'; const im = document.createElement('img'); im.src = 'static/img/obs_still.jpg'; im.alt = 'One camera image of the scene'; b.append(im); place(b, 20, 254, 150); }
+    txt(svg, 20, 392, 'robot state', {class:'sm'});
+    for (let k = 0; k < 8; k++) el('rect', {class:'bar', x:92 + k * 10, y:385, width:7, height:7, rx:1}, svg);
+    txt(svg, 20, 416, 'instruction', {class:'sm'});
+    el('rect', {x:20, y:423, width:150, height:26, rx:3, fill:'#f9d65c'}, svg);
+    txt(svg, 95, 441, '“move the bread”', {'text-anchor':'middle', style:'fill:#1a1a18;font-weight:500'});
+    el('path', {class:'wire', d:'M176 254 H184 V449 H176'}, svg);            // one bracket: all three inputs enter the policy
+    arrow(184, 352, 232, 352);
+    el('rect', {class:'frozen', x:216, y:236, width:484, height:232, rx:8}, svg);
+    { const t = txt(svg, 232, 258, 'π', {class:'sm'}); el('tspan', {dy:3, 'font-size':8.5}, t).textContent = '0.5'; el('tspan', {dy:-3}, t).textContent = ' · pretrained weights frozen'; }
+    el('rect', {class:'fbox', x:234, y:304, width:106, height:96, rx:4}, svg);
+    txt(svg, 287, 349, 'vision-language', {'text-anchor':'middle', 'font-size':12.5}); txt(svg, 287, 365, 'model', {'text-anchor':'middle', 'font-size':12.5});
+    arrow(340, 352, 366, 352);
+    const readers = [], bx0 = 372, by0 = 304, pitch = 18;
+    for (let k = 0; k < 18; k++) { const x = bx0 + k * pitch; el('rect', {class:'blk', x, y:by0, width:11, height:96, rx:2}, svg);
+      if (k >= 12) readers.push([el('circle', {class:'rd', cx:x + 5.5, cy:by0 - 13, r:5.5}, svg), x + 5.5]); }
+    txt(svg, bx0, 422, 'action expert, 18 blocks', {class:'sm'});
+    txt(svg, bx0 + 17 * pitch + 11, 440, 'readers on the last 6', {class:'sm', 'text-anchor':'end', style:'fill:var(--read)'});
+    const wires = readers.map(([, x], k) => { const mx = gx + 12 + k * 25.6; return el('path', {class:'rwire', d:`M${mx} ${gy + 5 * c} C ${mx} 190, ${x} 200, ${x} ${by0 - 19}`}, svg); });
     const pulses = readers.map(() => el('circle', {class:'pulse', r:3.5}, svg));
-    arrow(860, 336, 912, 336);
-    txt(svg, 918, 331, 'actions'); txt(svg, 918, 347, '50-step chunk', {class:'sm'});
+    arrow(706, 352, 768, 352);
+    txt(svg, 736, 340, 'actions', {'text-anchor':'middle'}); txt(svg, 736, 370, '50-step', {class:'sm', 'text-anchor':'middle'}); txt(svg, 736, 384, 'chunk', {class:'sm', 'text-anchor':'middle'});
+    txt(svg, 774, 262, 'the robot moves', {class:'sm'});
+    const [rb, rv] = tile('static/videos/swap_bread_own.mp4', {arrow:240}); rb.classList.add('obs'); place(rb, 774, 270, 216);
     const out = el('circle', {class:'pulse', r:4}, svg);
     // legend
-    el('rect', {class:'box', x:226, y:474, width:14, height:12, rx:2}, svg); txt(svg, 247, 485, 'trained once, in in-context training (with one shared LoRA)', {class:'sm'});
-    el('rect', {class:'frozen', x:600, y:474, width:14, height:12, rx:2}, svg); txt(svg, 621, 485, 'frozen', {class:'sm'});
-    el('circle', {class:'rd', cx:694, cy:480, r:5.5}, svg); txt(svg, 706, 485, 'gated cross-attention reader', {class:'sm'});
+    el('rect', {class:'box', x:216, y:488, width:14, height:12, rx:2}, svg); txt(svg, 237, 499, 'trained once, in in-context training (with one shared LoRA)', {class:'sm'});
+    el('rect', {class:'frozen', x:590, y:488, width:14, height:12, rx:2}, svg); txt(svg, 611, 499, 'frozen', {class:'sm'});
+    el('circle', {class:'rd', cx:676, cy:494, r:5.5}, svg); txt(svg, 688, 499, 'gated cross-attention reader', {class:'sm'});
 
+    inn.querySelectorAll('video').forEach(want);     // on a phone the diagram scrolls sideways: fetch its clips up front, not when they slide into view
     const STEPS = ['Five demonstrations of a new task: two camera videos, robot states and actions.',
                    'Encoded once into a fixed memory of tokens. No gradient step on the new task.',
-                   'The policy keeps its usual inputs. At every denoising step, readers in its action expert query the memory.',
+                   'The policy keeps its usual inputs: camera images, robot state and the instruction. At every denoising step, readers in its action expert query the memory.',
                    'The memory stays fixed; what the readers take from it changes with what the robot sees.'];
     const stepEl = document.getElementById('mech-step'), dots = [...document.querySelectorAll('#mech-dots i')];
     let timers = [], loopT;
@@ -772,7 +806,7 @@ footer{padding:70px 20px 50px}
       const go = ts => { if (t0 == null) t0 = ts; const f = Math.min(1, (ts - t0) / ms); const pt = path.getPointAtLength(L * f); p.setAttribute('cx', pt.x); p.setAttribute('cy', pt.y);
         if (f < 1) requestAnimationFrame(go); else { p.style.opacity = 0; if (done) done(); } };
       requestAnimationFrame(go); }
-    const outPath = el('path', {d:'M860 336 L912 336', fill:'none'}, svg);
+    const outPath = el('path', {d:'M706 352 L768 352', fill:'none'}, svg);
     function readPulse(band){
       readers.forEach(([r], k) => { r.setAttribute('class', 'rd on'); fly(pulses[k], wires[k], 420, () => r.setAttribute('class', 'rd')); });
       later(() => fly(out, outPath, 260), 430);
@@ -781,13 +815,13 @@ footer{padding:70px 20px 50px}
     function run(){
       reset(); mech.className = 'mech p0'; setStep(0);
       later(() => { mech.className = 'mech p1'; setStep(1); toks.forEach((t, i) => later(() => t.setAttribute('class', 'tok on'), 22 * i)); later(() => once.style.opacity = 1, 2400); }, 3200);
-      later(() => { mech.className = 'mech p2'; setStep(2); wires.forEach(w => w.style.opacity = .55); rv.currentTime = 0; rv.play().catch(() => {});
+      later(() => { mech.className = 'mech p2'; setStep(2); wires.forEach(w => w.style.opacity = .55); rv.currentTime = 0; if (rv.dataset.vis) rv.play().catch(() => {});
         let k = 0; const bands = [2, 9, 14, 5, 11, 16, 0, 7, 13, 3, 10, 15, 6, 12, 1, 8];
         loopT = setInterval(() => { readPulse(bands[k % bands.length]); if (++k === 5) setStep(3); }, 700); }, 7200);
       later(run, 7200 + 11200);
     }
     if (reduce) { setStep(2); toks.forEach(t => t.setAttribute('class', 'tok on')); wires.forEach(w => w.style.opacity = .55); once.style.opacity = 1; }
-    else run();
+    else { let live = false; new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting && !live) { live = true; run(); } else if (!e.isIntersecting && live) { live = false; reset(); } }), {rootMargin:'100px 0px'}).observe(mech); }
   })();
 
   // ---------- 02 wheel ----------
@@ -797,12 +831,12 @@ footer{padding:70px 20px 50px}
   let obj = 'a';
   const wheel = document.getElementById('wheelbox');
   function dial(){
-    const s = el('svg', {class:'dial', viewBox:'0 0 100 100', 'aria-hidden':'true'}), r0 = 13, rw = 31, p = (a, r = r0) => [50 + r * Math.cos(rad(a)), 50 - r * Math.sin(rad(a))];
-    const [x1, y1] = p(75, rw), [x2, y2] = p(165, rw);
-    el('path', {class:'gap', d:`M50 50 L${x1} ${y1} A${rw} ${rw} 0 0 0 ${x2} ${y2} Z`}, s);
+    const s = el('svg', {class:'dial', viewBox:'0 0 100 100', 'aria-hidden':'true'}), r0 = 18, rw = 27.5, p = (a, r = r0) => [50 + r * Math.cos(rad(a)), 50 - r * Math.sin(rad(a))];
+    const [x1, y1] = p(90, rw), [x2, y2] = p(150, rw), [x3, y3] = p(150), [x4, y4] = p(90);
+    el('path', {class:'gap', d:`M${x4} ${y4} L${x1} ${y1} A${rw} ${rw} 0 0 0 ${x2} ${y2} L${x3} ${y3} A${r0} ${r0} 0 0 1 ${x4} ${y4} Z`}, s);
     el('circle', {class:'ring', cx:50, cy:50, r:r0, 'vector-effect':'non-scaling-stroke'}, s);
     BEAR.forEach(b => { const [x, y] = p(b), q = p(b, r0 + 2); el('line', {class:'spk', x1:x, y1:y, x2:q[0], y2:q[1], 'vector-effect':'non-scaling-stroke'}, s); });
-    const [tx, ty] = p(120, 21.5); txt(s, tx, ty - .6, '90–150°', {'text-anchor':'middle'}); txt(s, tx, ty + 1.5, 'never trained', {'text-anchor':'middle'});
+    const [tx, ty] = p(120, 22.6); txt(s, tx, ty - .3, '90–150°', {'text-anchor':'middle'}); txt(s, tx, ty + 1.9, 'never trained', {'text-anchor':'middle'});
     return s;
   }
   function drawWheel(){
@@ -853,11 +887,11 @@ footer{padding:70px 20px 50px}
 
   // ---------- 04 coverage + beyond (videos) ----------
   (function(){
-    const g = document.getElementById('covgrid'), vids = [];
-    C.cov.forEach(([name, file, sh, sc]) => [['shared', 'Shared split', sh, 'drifts to a direction it trained'], ['scattered', 'Scattered split', sc, 'follows the demonstrated goal']].forEach(([k, t, x, d]) => {
-      const f = document.createElement('figure');
-      const [b, v] = tile(`static/videos/cov_${k}_${file}.mp4`, {tag:t, res:x[0] == null ? 'no move' : `lands at ${x[0]}°`, ok:x[1], arrow:240}); vids.push(v);
-      const cap = document.createElement('figcaption'); cap.innerHTML = `<b>${name} · ${t.toLowerCase()}</b><br>${x[1] ? d : (k === 'shared' ? d : off(x[0], 240) + '° off')}`; f.append(b, cap); g.append(f);
+    const vids = [];
+    [['shared', 2, 'moves toward its trained 270°'], ['scattered', 3, 'follows the demonstrated goal']].forEach(([k, col, d]) => C.cov.forEach(row => {
+      const [name, file] = row, x = row[col], f = document.createElement('figure');
+      const [b, v] = tile(`static/videos/cov_${k}_${file}.mp4`, {tag:'demos show 240°', res:x[0] == null ? 'no move' : `lands at ${x[0]}°`, ok:x[1], arrow:240}); vids.push(v);
+      const cap = document.createElement('figcaption'); cap.innerHTML = `<b>${name}</b><br>${x[1] ? d : (k === 'shared' ? d : off(x[0], 240) + '° off')}`; f.append(b, cap); document.getElementById('cov-' + k).append(f);
     }));
     sync(vids);
     document.getElementById('covnote').textContent = C.covnote;
@@ -916,12 +950,6 @@ footer{padding:70px 20px 50px}
     const f = document.createElement('figure'), st = document.createElement('div'); st.className = 'stack';
     const [a] = tile(`static/videos/beh_held_${k}.mp4`, {tag:'1 of 5 demos'}), [b] = tile(`static/videos/fail_${k}_broad.mp4`, {tag:'READ, broad set'});
     st.append(a, b); const c = document.createElement('figcaption'); c.innerHTML = `<b>${t}</b>`; f.append(st, c); document.getElementById('fails').append(f); });
-  (function(){ const g = document.getElementById('libero'), vids = [];
-    C.libero.forEach(([k, t, r, ok, d]) => {
-      const f = document.createElement('figure'); const [b, v] = tile(`static/videos/libero_t2_${k}.mp4`, {tag:t, res:r, ok, ratio:'1/1'}); vids.push(v);
-      const cap = document.createElement('figcaption'); cap.innerHTML = d; f.append(b, cap); g.append(f); }); sync(vids);
-    document.getElementById('libnote').textContent = C.libnote; })();
-
   // ---------- sticky toc highlight ----------
   const links = [...document.querySelectorAll('#toc a')];
   const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) links.forEach(a => a.classList.toggle('on', a.getAttribute('href') === '#' + e.target.id)); }), {rootMargin:'-40% 0px -55% 0px'});
