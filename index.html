@@ -835,11 +835,11 @@ footer{padding:70px 20px 50px}
     }
     function run(){
       reset(); mech.className = 'mech p0'; setStep(0);
-      later(() => { mech.className = 'mech p1'; setStep(1); toks.forEach((t, i) => later(() => t.setAttribute('class', 'tok on'), 22 * i)); later(() => once.style.opacity = 1, 2400); }, 3200);
+      later(() => { mech.className = 'mech p1'; setStep(1); toks.forEach((t, i) => later(() => t.setAttribute('class', 'tok on'), 22 * i)); later(() => once.style.opacity = 1, 2400); }, 1400);
       later(() => { mech.className = 'mech p2'; setStep(2); wires.forEach(w => w.style.opacity = .55); rv.currentTime = 0; if (rv.dataset.vis) rv.play().catch(() => {});
         let k = 0; const bands = [2, 9, 14, 5, 11, 16, 0, 7, 13, 3, 10, 15, 6, 12, 1, 8];
-        loopT = setInterval(() => { readPulse(bands[k % bands.length]); if (++k === 5) setStep(3); }, 700); }, 7200);
-      later(run, 7200 + 11200);
+        loopT = setInterval(() => { readPulse(bands[k % bands.length]); if (++k === 5) setStep(3); }, 700); }, 5400);
+      later(run, 5400 + 11200);
     }
     if (reduce) { setStep(2); toks.forEach(t => t.setAttribute('class', 'tok on')); wires.forEach(w => w.style.opacity = .55); once.style.opacity = 1; }
     else { let live = false; new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting && !live) { live = true; run(); } else if (!e.isIntersecting && live) { live = false; reset(); } }), {rootMargin:'100px 0px'}).observe(mech); }
