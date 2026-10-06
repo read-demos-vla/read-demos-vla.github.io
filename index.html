@@ -10,6 +10,9 @@
 <title>READ: Teaching a VLA by Demonstration</title>
 <meta name="description" content="READ adapts a pretrained vision-language-action policy from five demonstrations without updating its parameters.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="static/img/hero_poster_m.jpg" media="(max-width:700px)" fetchpriority="high">
+<link rel="preload" as="image" href="static/img/hero_poster.jpg" media="(min-width:701px)" fetchpriority="high">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap">
 <style>
 :root{
@@ -298,7 +301,7 @@ footer{padding:70px 20px 50px}
 </header>
 
 <div class="hero">
-  <video id="hero" src="static/videos/hero_teaser.mp4" poster="static/img/hero_poster.jpg" muted loop autoplay playsinline preload="metadata"
+  <video id="hero" muted loop playsinline preload="none"
     aria-label="The same scene and instruction with four different sets of demonstrations; the robot moves the bread wherever the demonstrations show."></video>
 </div>
 <p class="prose cap">One scene, one instruction, <span class="instr">move the bread</span>. Only the five demonstrations change, and the
@@ -705,7 +708,12 @@ footer{padding:70px 20px 50px}
   const pad3 = b => String(b).padStart(3, '0');
   // Clips are fetched only when they come near the viewport and play only while on screen: the page never
   // downloads or decodes all of its videos at once.
-  const want = v => { if (!v.getAttribute('src') && v.dataset.src) { v.src = v.dataset.src; v.load(); } };
+  // The hero goes first: every other clip waits until it can play (or 4 s), so they do not compete for a slow connection.
+  let open = false; const queue = [];
+  const fetchNow = v => { if (!v.getAttribute('src') && v.dataset.src) { v.src = v.dataset.src; v.load(); } };
+  const want = v => { if (open || v.id === 'hero') fetchNow(v); else queue.push(v); };
+  const release = () => { if (open) return; open = true; queue.splice(0).forEach(fetchNow); };
+  document.getElementById('hero').addEventListener('canplay', release, {once:true}); setTimeout(release, 4000);
   const loadIO = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { want(e.target); loadIO.unobserve(e.target); } }), {rootMargin:'900px 0px'});
   const playIO = new IntersectionObserver(es => es.forEach(e => { const v = e.target; v.dataset.vis = e.isIntersecting ? '1' : '';
     if (e.isIntersecting) { want(v); v.play().catch(() => {}); } else v.pause(); }), {rootMargin:'80px 0px'});
@@ -714,7 +722,11 @@ footer{padding:70px 20px 50px}
     v.addEventListener('canplay', () => { if (v.dataset.vis) v.play().catch(() => {}); });
     loadIO.observe(v); playIO.observe(v); return v; }
   function sync(vids){ let n = 0; vids.forEach(v => v.addEventListener('canplaythrough', () => { if (++n === vids.length) vids.forEach(x => { x.currentTime = 0; if (x.dataset.vis) x.play().catch(() => {}); }); }, {once:true})); }
-  playIO.observe(document.getElementById('hero'));
+  const hero = document.getElementById('hero'), small = window.matchMedia('(max-width:700px)').matches;
+  hero.poster = small ? 'static/img/hero_poster_m.jpg' : 'static/img/hero_poster.jpg';
+  hero.dataset.src = small ? 'static/videos/hero_teaser_m.mp4' : 'static/videos/hero_teaser.mp4'; hero.preload = 'auto';
+  hero.addEventListener('canplay', () => { if (hero.dataset.vis) hero.play().catch(() => {}); });
+  playIO.observe(hero);
   // 11 cm on the table, in the 320x240 head-camera image
   const RX = 56, RY = 47;
   function ov(s0, b, dashed, target){
