@@ -62,6 +62,8 @@ a{color:inherit;text-decoration-color:var(--faint);text-underline-offset:3px}
 .cap{font-size:14.5px;line-height:1.5;color:var(--muted);margin-top:10px}
 .cap b{color:var(--body);font-weight:600}
 .lead{font-size:21px;line-height:1.55;color:var(--ink)}
+.lead.tldr{border-left:3px solid var(--read);padding:2px 0 2px 18px;margin:0 0 44px;font-size:19.5px;line-height:1.6}
+.tldr b{font:600 12.5px/1 "JetBrains Mono",monospace;letter-spacing:.06em;color:var(--read);margin-right:10px;vertical-align:2px}
 .instr{display:inline-block;background:#f9d65c;color:#1a1a18;font-weight:500;padding:0 7px;border-radius:3px;font-size:.92em;line-height:1.5}
 /* masthead */
 .top{display:flex;justify-content:space-between;align-items:center;padding-top:22px;padding-bottom:54px;font-size:14px;color:var(--muted)}
@@ -79,7 +81,7 @@ section{padding-top:84px}
 .sec-n{font:400 14px/1 "JetBrains Mono",ui-monospace,monospace;color:var(--muted);display:block;margin-bottom:12px}
 /* sticky toc */
 .toc{display:none}
-@media (min-width:1400px){
+@media (min-width:1640px){
   .toc{display:block;position:fixed;left:28px;top:120px;width:190px;font-size:13.5px;line-height:1.5}
   .toc a{display:block;color:var(--muted);text-decoration:none;padding:3px 0 3px 12px;border-left:1px solid var(--rule)}
   .toc a:hover{color:var(--ink)}
@@ -128,7 +130,7 @@ section{padding-top:84px}
 .flow text.kick{font:500 10.5px "JetBrains Mono",monospace;fill:var(--muted);letter-spacing:.08em}
 .flow .box{fill:var(--paper);stroke:var(--ink);stroke-width:1.5}
 .flow .frozen{fill:var(--wash);stroke:var(--line2);stroke-width:1}
-.flow .fbox{fill:var(--paper);stroke:var(--line2);stroke-width:1.2}
+.flow .fbox{fill:var(--rule);stroke:var(--line2);stroke-width:1.2}
 .flow .wire{stroke:var(--muted);stroke-width:1.3;fill:none}
 .flow .ahead{fill:var(--muted)}
 .flow .tok{fill:var(--rule);transition:fill .25s}
@@ -142,10 +144,30 @@ section{padding-top:84px}
 .flow .enc{transition:stroke .3s,stroke-width .3s}
 .mech.p1 .flow .enc{stroke:var(--accent);stroke-width:2.6}
 .flow .bar{fill:var(--line2)}
-.step{font-family:Newsreader,Georgia,serif;font-size:22px;color:var(--ink);min-height:2.6em;margin-top:16px;transition:opacity .35s}
-.dots{display:flex;gap:6px;margin-top:6px}
-.dots i{width:22px;height:3px;background:var(--rule);display:block}
-.dots i.on{background:var(--ink)}
+.step{font-family:Newsreader,Georgia,serif;font-size:22px;color:var(--ink);min-height:2.6em;margin-top:16px;transition:opacity .35s;display:flex;flex-direction:column;justify-content:flex-end}
+/* diagram steps: plays and loops by itself until the reader picks a step, then stays where they put it */
+.mctl{display:flex;align-items:center;gap:4px;margin-top:18px}
+.dots{display:flex;gap:2px}
+.dots button{width:34px;height:28px;border:0;background:none;padding:0;cursor:pointer;display:flex;align-items:center}
+.dots button i{width:100%;height:3px;background:var(--rule);display:block;transition:background .2s}
+.dots button:hover i{background:var(--faint)}
+.dots button.on i{background:var(--ink)}
+/* playback bar under each group of clips */
+.vctl{display:flex;align-items:center;gap:6px;margin-top:8px}
+.vctl .rt{margin-left:auto;display:inline-flex;gap:6px}
+.vctl .sp{display:inline-flex}
+.vctl .mb span{display:inline-block;width:.7em;text-align:center}
+.ib,.vctl button{font:500 12.5px/1 Inter,sans-serif;border:1px solid var(--line2);background:var(--btn);color:var(--body);height:28px;min-width:30px;padding:0 10px;
+  border-radius:999px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.ib{padding:0;width:30px}
+.ib svg,.vctl svg{width:11px;height:11px;fill:currentColor}
+.ib:hover,.vctl button:hover{border-color:var(--ink)}
+.vctl .sp button{border-radius:0;min-width:36px}
+.vctl .sp button:first-child{border-radius:999px 0 0 999px} .vctl .sp button:last-child{border-radius:0 999px 999px 0;margin-left:-1px}
+.vctl .sp button[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.dots button:focus-visible,.ib:focus-visible,.vctl button:focus-visible{outline:2px solid var(--read);outline-offset:2px}
+.morep{margin-top:12px}
+.morep > .cap{margin:0 0 8px}
 /* wheel */
 .wheel{position:relative;width:100%;max-width:880px;aspect-ratio:1/1;margin:10px auto 0}
 .wheel svg.dial{position:absolute;inset:0;width:100%;height:100%}
@@ -233,6 +255,7 @@ section{padding-top:84px}
 .bars i.n{background:var(--nodemo)} .bars i.br{background:var(--read)}
 /* table */
 .tscroll{overflow-x:auto}
+table.tt td:first-child{white-space:nowrap;font-weight:500}
 table{border-collapse:collapse;width:100%;min-width:560px;font-size:15.5px}
 th,td{padding:8px 10px;border-bottom:1px solid var(--rule);text-align:left}
 th{font-weight:500;color:var(--muted);font-size:14px}
@@ -282,6 +305,8 @@ footer{padding:70px 20px 50px}
   .top nav{gap:5px}
   .gal figcaption{flex-direction:column;gap:0}
   .tabs button.toggle{margin-left:0}
+  .lead.tldr{font-size:17.5px;padding-left:14px;margin-bottom:34px}
+  .vctl .mb{padding:0 9px}
 }
 @media (prefers-reduced-motion:reduce){ html{scroll-behavior:auto} }
 </style>
@@ -302,10 +327,12 @@ footer{padding:70px 20px 50px}
 <main>
 <header class="prose">
   <h1>READ: What Makes a Pretrained VLA Teachable by Demonstration?</h1>
-  <div class="meta"><span>Authors</span><span>Anonymous</span><span>Status</span><span>Under double-blind review</span><span>Policy</span><span>π<sub>0.5</sub>, pretrained weights frozen</span></div>
-  <p class="lead">Show a pretrained robot policy five demonstrations of a new task, and it can perform the task.
-    No gradient step, no fine-tuning run: the demonstrations are written once into a memory that the policy
-    reads while it acts.</p>
+  <div class="meta"><span>Authors</span><span>Anonymous</span><span>Status</span><span>Under double-blind review</span><span>Policy</span><span>π<sub>0.5</sub> (pretrained)</span></div>
+  <p class="lead tldr"><b>TL;DR</b>Show a pretrained VLA (π<sub>0.5</sub>) five demonstrations of a new task, and it performs
+    the task with no gradient step on it: the demonstrations are written once into a memory that the policy reads while it acts.
+    On held-out LIBERO-Gen tasks, five demonstrations match per-task fine-tuning (92.8% vs 92.5%). Swap the demonstrations and
+    the robot moves the object the new way, even an object it never manipulated in training; scattering training directions
+    across objects raises success on new object–direction pairings from 1% to 79%.</p>
 </header>
 
 <div class="hero">
@@ -331,7 +358,12 @@ footer{padding:70px 20px 50px}
     </div></div>
     <div class="prose" style="padding:0">
       <div class="step" id="mech-step"></div>
-      <div class="dots" id="mech-dots"><i></i><i></i><i></i><i></i></div>
+      <div class="mctl" role="group" aria-label="Diagram steps">
+        <button type="button" class="ib" id="mech-play"></button>
+        <button type="button" class="ib" id="mech-prev" aria-label="Previous step"><svg viewBox="0 0 10 10"><path d="M7 1 L3 5 L7 9 L8.2 7.8 L5.4 5 L8.2 2.2Z"/></svg></button>
+        <div class="dots" id="mech-dots"><button type="button" aria-label="Step 1 of 4"><i></i></button><button type="button" aria-label="Step 2 of 4"><i></i></button><button type="button" aria-label="Step 3 of 4"><i></i></button><button type="button" aria-label="Step 4 of 4"><i></i></button></div>
+        <button type="button" class="ib" id="mech-next" aria-label="Next step"><svg viewBox="0 0 10 10"><path d="M3 1 L7 5 L3 9 L1.8 7.8 L4.6 5 L1.8 2.2Z"/></svg></button>
+      </div>
       <p class="cap mech-hint" style="display:none;margin:0 0 6px">Scroll the diagram sideways to see all of it.</p>
       <p class="cap">Schematic. The memory holds 100 tokens on LIBERO-Gen and 260 on our two benchmarks; the highlighted tokens are illustrative.</p>
     </div>
@@ -341,6 +373,22 @@ footer{padding:70px 20px 50px}
       <p>The stage between pretraining and adaptation. The encoder, the readers and one LoRA shared by all tasks are trained
         once across many training tasks; π<sub>0.5</sub>'s pretrained weights stay frozen. A new task then costs one encoder pass.
         This is the stage we vary to ask which training experience makes a policy teachable.</p></div>
+    <h3 style="margin-top:34px">Trained on some tasks, tested on others</h3>
+    <p>Every benchmark is split by task. READ is trained on the training tasks only, and is tested mainly on tasks that are not
+      among them. At test time it receives five demonstrations that were never trained on, and each rollout starts from an
+      initial state not used in training.</p>
+    <div class="tscroll"><table class="tt">
+      <thead><tr><th>Benchmark</th><th>Trained on</th><th>Tested on (absent from training)</th></tr></thead>
+      <tbody>
+        <tr><td>LIBERO-Gen</td><td>164 tasks: pick up a bowl from one place, put it in another</td>
+          <td>10 new pairings of a pick-up place and a destination; each place appears in training, the pairing never does</td></tr>
+        <tr><td>Direction suite</td><td>37 objects, each moved in 5 of 12 directions</td>
+          <td>an object moved in a direction trained only with other objects; objects never manipulated in training;
+            90–150°, trained with no object</td></tr>
+        <tr><td>Behavior suite</td><td>37 objects with 3 (narrow set) or 8 (broad set) kinds of behavior</td>
+          <td>trained behaviors on four new objects; six behaviors absent from both training sets</td></tr>
+      </tbody></table></div>
+    <p class="cap">Trained tasks are also tested, from new demonstrations and initial states, as a reference.</p>
   </div>
 </section>
 
@@ -385,8 +433,8 @@ footer{padding:70px 20px 50px}
       where the new demonstrations point.</p>
     <p><b>Remove the demonstrations.</b> The <b>multi-task LoRA</b> baseline is READ without its encoder and readers: the same
       π<sub>0.5</sub> with a LoRA trained on the same tasks, from instructions alone. Here the instruction is again <span class="instr">move the bread</span> (or
-      <span class="instr">move the coffee box</span>): it names the object and never the direction, so this baseline shows what
-      the scene and the instruction can do on their own.</p>
+      <span class="instr">move the coffee box</span>), the same for every direction, so this baseline shows what the scene and
+      the instruction can do on their own.</p>
     <div class="tabs" role="group" aria-label="Object">
       <span class="hint">Object</span>
       <button type="button" data-sw="bread" aria-pressed="true">Bread, demos show 240°</button>
@@ -500,7 +548,7 @@ footer{padding:70px 20px 50px}
   <div class="prose">
     <span class="sec-n">05</span>
     <h2>More kinds of behavior in training, more that demonstrations can teach</h2>
-    <p>In our Behavior suite the instruction again names only the object, <span class="instr">manipulate the bread</span>, and
+    <p>In our Behavior suite every task of an object again shares one instruction, <span class="instr">manipulate the bread</span>, and
       the demonstrations decide <i>how</i> to move it. Two READ models train on the same 37 objects: a narrow set (hold, translate,
       rotate) and a broad set that adds tilt, place, drag, push and sequences. The broad set has fewer episodes (3,088 vs 3,626),
       so it tests richer behavior coverage, not more data.</p>
@@ -546,6 +594,12 @@ footer{padding:70px 20px 50px}
     <p>Against the same policy without demonstrations (the multi-task LoRA, 85.5%), READ is close on most of the ten tasks and
       helps most on the one whose instruction gives both places relative to other objects, “pick up the black bowl next to the
       cookie box and place it in the black bowl next to the ramekin” (T2 in the chart below): 98.8% vs 54.0%.</p>
+  </div>
+  <div class="wide" style="margin-top:22px">
+    <div class="row r5" id="libtasks"></div>
+    <p class="cap">The ten held-out LIBERO-Gen tasks (T0–T9): for each, the first of the five demonstrations READ receives,
+      replayed from its recorded states with a higher-resolution camera, 2× speed. Below each clip, where the black bowl starts →
+      where it goes. Both places occur in training, but their pairing does not; these are demonstrations, not policy rollouts.</p>
   </div>
   <div class="prose" style="margin-top:30px">
     <div class="tscroll"><table>
@@ -615,9 +669,9 @@ footer{padding:70px 20px 50px}
       benchmarks whose training sets we can rearrange. <b>Direction suite</b>: 37 objects, each moved 11 cm in one of twelve
       directions; we control exactly which directions are trained with which objects. <b>Behavior suite</b>: the behavior itself
       varies, and we ask whether adding behavior kinds widens what demonstrations can teach, as adding directions does. In both
-      suites the instruction names only the object (<span class="instr">move the coffee box</span>,
-      <span class="instr">manipulate the coffee box</span>), so all tasks of an object share one instruction and only the
-      demonstrations show which direction or behavior is requested.</p>
+      suites every task of an object has the same instruction (<span class="instr">move the coffee box</span>,
+      <span class="instr">manipulate the coffee box</span>), so only the demonstrations show which direction or behavior is
+      requested.</p>
     <figure class="fig"><img loading="lazy" decoding="async" src="static/img/fig03_suites.png" width="2200" height="520" 
       alt="The Direction suite moves an object toward one of twelve goals; the Behavior suite varies how the object is manipulated."></figure>
     <p class="cap">Left, Direction suite: from the same scene, the robot moves the ringed object 11 cm toward one of twelve goals.
@@ -678,12 +732,12 @@ footer{padding:70px 20px 50px}
   <div class="prose qa">
     <span class="sec-n">09</span>
     <h2>Questions</h2>
-    <details><summary>Isn't this just fine-tuning on the new task?</summary>
+    <details><summary>How does this differ from fine-tuning on the new task?</summary>
       <p>No parameter changes on the new task. Five demonstrations are encoded once into a cached memory, and the policy acts.
         For comparison, the per-task LoRA that READ matches on LIBERO-Gen takes 24k gradient steps on 36–49 demonstrations;
         fine-tuned on the same five demonstrations READ receives, it reaches 82.2%.</p></details>
-    <details><summary>The instruction already names the task. Are the demonstrations even used?</summary>
-      <p>In the Direction and Behavior suites the instruction names only the object, so the goal or behavior can come only from the
+    <details><summary>When the instruction already describes the task, are the demonstrations used?</summary>
+      <p>In the Direction and Behavior suites every task of an object has the same instruction, so the goal or behavior can come only from the
         demonstrations: base π<sub>0.5</sub> succeeds in 0 of 630 Direction episodes. Swapping demonstrations redirects the object (section 03),
         and on LIBERO-Gen swapping them lowers READ's success more than the weight-generating baseline's.</p></details>
     <details><summary>Why a memory, and not weights generated from the demonstrations?</summary>
@@ -725,16 +779,17 @@ footer{padding:70px 20px 50px}
   document.getElementById('hero').addEventListener('canplay', release, {once:true}); setTimeout(release, 4000);
   const loadIO = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { want(e.target); loadIO.unobserve(e.target); } }), {rootMargin:'900px 0px'});
   const playIO = new IntersectionObserver(es => es.forEach(e => { const v = e.target; v.dataset.vis = e.isIntersecting ? '1' : '';
-    if (e.isIntersecting) { want(v); v.play().catch(() => {}); } else v.pause(); }), {rootMargin:'80px 0px'});
+    if (e.isIntersecting) { want(v); go(v); } else v.pause(); }), {rootMargin:'80px 0px'});
+  const go = v => { if (v.dataset.vis && !v.dataset.hold) v.play().catch(() => {}); };   // hold = paused by the reader
   function video(src, loop = true){ const v = document.createElement('video'); v.dataset.src = src; v.muted = true; v.loop = loop; v.playsInline = true;
     v.setAttribute('muted', ''); v.setAttribute('playsinline', ''); v.preload = 'auto';
-    v.addEventListener('canplay', () => { if (v.dataset.vis) v.play().catch(() => {}); });
+    v.addEventListener('canplay', () => go(v));
     loadIO.observe(v); playIO.observe(v); return v; }
-  function sync(vids){ let n = 0; vids.forEach(v => v.addEventListener('canplaythrough', () => { if (++n === vids.length) vids.forEach(x => { x.currentTime = 0; if (x.dataset.vis) x.play().catch(() => {}); }); }, {once:true})); }
+  function sync(vids){ let n = 0; vids.forEach(v => v.addEventListener('canplaythrough', () => { if (++n === vids.length) vids.forEach(x => { x.currentTime = 0; go(x); }); }, {once:true})); }
   const hero = document.getElementById('hero'), small = window.matchMedia('(max-width:700px)').matches;
   hero.poster = small ? 'static/img/hero_poster_m.jpg' : 'static/img/hero_poster.jpg';
   hero.dataset.src = small ? 'static/videos/hero_teaser_m.mp4' : 'static/videos/hero_teaser.mp4'; hero.preload = 'auto';
-  hero.addEventListener('canplay', () => { if (hero.dataset.vis) hero.play().catch(() => {}); });
+  hero.addEventListener('canplay', () => go(hero));
   playIO.observe(hero);
   // 11 cm on the table, in the 320x240 head-camera image
   const RX = 56, RY = 47;
@@ -758,7 +813,33 @@ footer{padding:70px 20px 50px}
     if (res) { const r = document.createElement('span'); r.className = 'res' + (ok ? ' ok' : ''); r.textContent = res; box.append(r); }
     return [box, v];
   }
-  const C = {"wheel": {"trained": [30, 180, 210, 270, 330]}, "swap": {"bread": {"goal": 240, "cols": [["own", 240, 250, 1], ["wrong1", 0, 358, 0], ["wrong2", 30, 28, 0], ["wrong3", 60, 53, 0], ["nodemo", null, 344, 0]], "note": "In the paper's 10 recorded episodes of this setup: own demonstrations succeed in 8/10; swapped-in 0°, 30° and 60° demonstrations land within 12° of that direction in 10/10, 9/10 and 10/10; the multi-task LoRA succeeds in 1/10. This bread was never manipulated in training."}, "coffeebox": {"goal": 240, "cols": [["own", 240, 247, 1], ["wrong1", 0, 7, 0], ["wrong2", 30, 34, 0], ["wrong3", 60, 54, 0], ["nodemo", null, 323, 0]], "note": "In the paper's 10 recorded episodes of this setup: own demonstrations succeed in 8/10; swapped-in 0°, 30° and 60° demonstrations land within 12° of that direction in 9/10 each; the multi-task LoRA succeeds in 0/10. This coffee box is a training object, but it was never trained at 240°.", "demo0": [226, 164]}}, "cov": [["Bread", "bread", [277, 0], [248, 1]], ["Coffee box", "coffeebox", [283, 0], [247, 1]]], "covnote": "Same object, same initial state, demonstrations of 240°; 2× speed. Both are training objects that neither model trained at 240°. In the paper's 10 recorded episodes of each: bread, shared 0/10 vs scattered 7/10; coffee box, 0/10 vs 8/10.", "bey": [["read", "READ", 140, 0, "20° off, pulled toward a trained direction"], ["carry", "+ carrying data", 111, 1, "9° from the goal, completes the task"], ["reach", "+ reaching data", 40, 0, "80° off, the other way"]], "beynote": "Clips: the same bread, never manipulated in training, from the same initial state, 2× speed. Plots: every evaluation episode with a 120° goal; the green sector is the ±7.5° hit zone. On this bread at 120°, full task success in the paper: READ 0/50, with carrying data 42/50, with reaching data 0/50."};
+  const C = {"wheel": {"trained": [30, 180, 210, 270, 330]}, "swap": {"bread": {"goal": 240, "cols": [["own", 240, 250, 1, 235, 1], ["wrong1", 0, 359, 0, 4, 0], ["wrong2", 30, 25, 0, 29, 0], ["wrong3", 60, 48, 0, 57, 0], ["nodemo", null, 25, 0, 301, 0]], "note": "In the paper's 10 recorded episodes of this setup: own demonstrations succeed in 8/10; swapped-in 0°, 30° and 60° demonstrations land within 12° of that direction in 10/10, 9/10 and 10/10; the multi-task LoRA succeeds in 1/10. This bread was never manipulated in training.", "more": "In the paper's 10 recorded episodes, own demonstrations succeed in 8/10 and the multi-task LoRA in 1/10."}, "coffeebox": {"goal": 240, "cols": [["own", 240, 247, 1, 333, 0], ["wrong1", 0, 2, 0, 326, 0], ["wrong2", 30, 30, 0, 32, 0], ["wrong3", 60, 53, 0, 55, 0], ["nodemo", null, 214, 0, 228, 1]], "note": "In the paper's 10 recorded episodes of this setup: own demonstrations succeed in 8/10; swapped-in 0°, 30° and 60° demonstrations land within 12° of that direction in 9/10 each; the multi-task LoRA succeeds in 0/10. This coffee box is a training object, but it was never trained at 240°.", "demo0": [226, 164], "more": "In the paper's 10 recorded episodes, own demonstrations succeed in 8/10 and the multi-task LoRA in 0/10. This initial state is one of the failures: with its own demonstrations the coffee box lands 93° off, and the baseline happens to land within 12° of 240°."}}, "cov": [["Bread", "bread", [278, 0, 267, 0], [246, 1, 234, 1]], ["Coffee box", "coffeebox", [278, 0, 272, 0], [247, 1, 333, 0]]], "covnote": "Same object, same initial state, demonstrations of 240°; 2× speed. Both are training objects that neither model trained at 240°. In the paper's 10 recorded episodes of each: bread, shared 0/10 vs scattered 7/10; coffee box, 0/10 vs 8/10.", "bey": [["read", "READ", 148, 0, "28° off, misses the goal", 145, 0], ["carry", "+ carrying data", 114, 1, "6° from the goal, completes the task", 119, 1], ["reach", "+ reaching data", 45, 0, "75° off, the other way", 48, 0]], "beynote": "Clips: the same bread, never manipulated in training, from the same initial state, 2× speed. Plots: every evaluation episode with a 120° goal; the green sector is the ±7.5° hit zone. On this bread at 120°, full task success in the paper: READ 0/50, with carrying data 42/50, with reaching data 0/50.", "covmore": "In the paper's 10 recorded episodes of each: bread, shared 0/10 vs scattered 7/10; coffee box, 0/10 vs 8/10. On this initial state the scattered model misses with the coffee box; it is the same rollout as the coffee box's own-demonstration clip among the second rollouts of the demonstration swap."};
+  // Pause and 1×/2× for a group of clips, which otherwise autoplay and loop. The clips are encoded at 2× speed, so 1× plays
+  // them at half rate. The whole group changes together, so clips that are synced stay in step.
+  const IPAUSE = '<svg viewBox="0 0 10 10" aria-hidden="true"><rect x="1.5" y="1" width="2.6" height="8" rx=".4"/><rect x="5.9" y="1" width="2.6" height="8" rx=".4"/></svg>',
+        IPLAY = '<svg viewBox="0 0 10 10" aria-hidden="true"><path d="M2 1 L9 5 L2 9Z"/></svg>';
+  const btn = (html, attrs = {}) => { const b = document.createElement('button'); b.type = 'button'; b.innerHTML = html; for (const k in attrs) b.setAttribute(k, attrs[k]); return b; };
+  function controls(anchor, more){
+    const g = {vids:[], rate:1, hold:false, panel:null}, bar = document.createElement('div'); bar.className = 'vctl';
+    if (more) {
+      const b = btn(`<span>+</span>${more}`, {class:'mb', 'aria-expanded':'false'}); g.panel = document.createElement('div'); g.panel.className = 'morep'; g.panel.hidden = true;
+      b.addEventListener('click', () => { const o = g.panel.hidden; g.panel.hidden = !o; b.setAttribute('aria-expanded', String(o)); b.firstChild.textContent = o ? '–' : '+'; });
+      bar.append(b);
+    }
+    const rt = document.createElement('span'); rt.className = 'rt';
+    const pp = btn(IPAUSE, {'aria-label':'Pause these clips', title:'Pause'});
+    pp.addEventListener('click', () => { g.hold = !g.hold; pp.innerHTML = g.hold ? IPLAY : IPAUSE; pp.setAttribute('aria-label', g.hold ? 'Play these clips' : 'Pause these clips');
+      pp.title = g.hold ? 'Play' : 'Pause'; g.vids.forEach(v => { v.dataset.hold = g.hold ? '1' : ''; if (g.hold) v.pause(); else go(v); }); });
+    const sp = document.createElement('span'); sp.className = 'sp'; sp.setAttribute('role', 'group'); sp.setAttribute('aria-label', 'Playback speed');
+    [[0.5, '1×'], [1, '2×']].forEach(([r, t]) => { const b = btn(t, {'aria-pressed':String(r === 1), title:r === 1 ? 'As encoded, 2× speed' : 'Real time'});
+      b.addEventListener('click', () => { g.rate = r; sp.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+        g.vids.forEach(v => { v.defaultPlaybackRate = v.playbackRate = r; }); }); sp.append(b); });
+    rt.append(pp, sp); bar.append(rt); anchor.after(bar); if (g.panel) bar.after(g.panel);
+    g.add = v => { g.vids.push(v); v.defaultPlaybackRate = v.playbackRate = g.rate; v.dataset.hold = g.hold ? '1' : ''; return v; };
+    g.clear = () => { g.vids = []; };
+    return g;
+  }
+  controls(hero).add(hero);
 
   // ---------- 01 method diagram ----------
   (function(){
@@ -809,7 +890,7 @@ footer{padding:70px 20px 50px}
     const out = el('circle', {class:'pulse', r:4}, svg);
     // legend
     el('rect', {class:'box', x:216, y:488, width:14, height:12, rx:2}, svg); txt(svg, 237, 499, 'trained once, in in-context training (with one shared LoRA)', {class:'sm'});
-    el('rect', {class:'frozen', x:590, y:488, width:14, height:12, rx:2}, svg); txt(svg, 611, 499, 'frozen', {class:'sm'});
+    el('rect', {class:'fbox', x:590, y:488, width:14, height:12, rx:2}, svg); txt(svg, 611, 499, 'frozen', {class:'sm'});
     el('circle', {class:'rd', cx:676, cy:494, r:5.5}, svg); txt(svg, 688, 499, 'gated cross-attention reader', {class:'sm'});
 
     inn.querySelectorAll('video').forEach(want);     // on a phone the diagram scrolls sideways: fetch its clips up front, not when they slide into view
@@ -817,10 +898,17 @@ footer{padding:70px 20px 50px}
                    'Encoded once into a fixed memory of tokens. No gradient step on the new task.',
                    'The policy keeps its usual inputs: camera images, robot state and the instruction. At every denoising step, readers in its action expert query the memory.',
                    'The memory stays fixed; what the readers take from it changes with what the robot sees.'];
-    const stepEl = document.getElementById('mech-step'), dots = [...document.querySelectorAll('#mech-dots i')];
-    let timers = [], loopT;
+    const stepEl = document.getElementById('mech-step'), dots = [...document.querySelectorAll('#mech-dots button')], playB = document.getElementById('mech-play');
+    const BANDS = [2, 9, 14, 5, 11, 16, 0, 7, 13, 3, 10, 15, 6, 12, 1, 8];
+    // Reserve the tallest step's height, text sitting on the controls, so the gap to them never changes between steps.
+    function fitStep(){ const c = stepEl.cloneNode(); c.removeAttribute('id'); c.style.cssText = `position:absolute;visibility:hidden;min-height:0;width:${stepEl.clientWidth}px`;
+      stepEl.parentElement.append(c); let m = 0; STEPS.forEach(t => { c.textContent = t; m = Math.max(m, c.offsetHeight); }); c.remove(); stepEl.style.minHeight = m + 'px'; }
+    fitStep(); if (document.fonts) document.fonts.ready.then(fitStep);
+    let fitT; window.addEventListener('resize', () => { clearTimeout(fitT); fitT = setTimeout(fitStep, 150); });
+    let timers = [], loopT, cur = 0, manual = reduce, live = false;
     const later = (f, ms) => timers.push(setTimeout(f, ms));
-    function setStep(i){ stepEl.style.opacity = 0; later(() => { stepEl.textContent = STEPS[i]; stepEl.style.opacity = 1; }, 300); dots.forEach((d, k) => d.classList.toggle('on', k === i)); }
+    function setStep(i){ cur = i; stepEl.style.opacity = 0; later(() => { stepEl.textContent = STEPS[i]; stepEl.style.opacity = 1; }, 300);
+      dots.forEach((d, k) => { d.classList.toggle('on', k === i); if (k === i) d.setAttribute('aria-current', 'step'); else d.removeAttribute('aria-current'); }); }
     function reset(){ timers.forEach(clearTimeout); timers = []; clearInterval(loopT); toks.forEach(t => t.setAttribute('class', 'tok'));
       readers.forEach(([r]) => r.setAttribute('class', 'rd')); wires.forEach(w => w.style.opacity = 0); pulses.forEach(p => p.style.opacity = 0); out.style.opacity = 0; once.style.opacity = 0; }
     function fly(p, path, ms, done){ const L = path.getTotalLength(); let t0 = null; p.style.opacity = 1;
@@ -833,16 +921,30 @@ footer{padding:70px 20px 50px}
       later(() => fly(out, outPath, 260), 430);
       toks.forEach((t, i) => t.setAttribute('class', 'tok on' + ((i % 20) >= band && (i % 20) < band + 4 ? ' hl' : '')));
     }
-    function run(){
+    const playRobot = () => { rv.currentTime = 0; go(rv); };
+    function run(){                       // the default: play all four steps, then start over
       reset(); mech.className = 'mech p0'; setStep(0);
       later(() => { mech.className = 'mech p1'; setStep(1); toks.forEach((t, i) => later(() => t.setAttribute('class', 'tok on'), 22 * i)); later(() => once.style.opacity = 1, 2400); }, 1400);
-      later(() => { mech.className = 'mech p2'; setStep(2); wires.forEach(w => w.style.opacity = .55); rv.currentTime = 0; if (rv.dataset.vis) rv.play().catch(() => {});
-        let k = 0; const bands = [2, 9, 14, 5, 11, 16, 0, 7, 13, 3, 10, 15, 6, 12, 1, 8];
-        loopT = setInterval(() => { readPulse(bands[k % bands.length]); if (++k === 5) setStep(3); }, 700); }, 5400);
+      later(() => { mech.className = 'mech p2'; setStep(2); wires.forEach(w => w.style.opacity = .55); playRobot();
+        let k = 0; loopT = setInterval(() => { readPulse(BANDS[k % BANDS.length]); if (++k === 5) setStep(3); }, 700); }, 5400);
       later(run, 5400 + 11200);
     }
-    if (reduce) { setStep(2); toks.forEach(t => t.setAttribute('class', 'tok on')); wires.forEach(w => w.style.opacity = .55); once.style.opacity = 1; }
-    else { let live = false; new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting && !live) { live = true; run(); } else if (!e.isIntersecting && live) { live = false; reset(); } }), {rootMargin:'100px 0px'}).observe(mech); }
+    function show(i){                     // one step, held until the reader moves on
+      reset(); mech.className = 'mech p' + Math.min(i, 2); setStep(i);
+      if (i === 1) { if (reduce) toks.forEach(t => t.setAttribute('class', 'tok on')); else toks.forEach((t, j) => later(() => t.setAttribute('class', 'tok on'), 8 * j)); later(() => once.style.opacity = 1, reduce ? 0 : 900); }
+      if (i >= 2) { toks.forEach(t => t.setAttribute('class', 'tok on')); once.style.opacity = 1; wires.forEach(w => w.style.opacity = .55);
+        if (i === 2) playRobot();
+        if (!reduce) { let k = 0; readPulse(BANDS[0]); loopT = setInterval(() => readPulse(BANDS[++k % BANDS.length]), 700); } }
+    }
+    function mode(m){ manual = m; playB.innerHTML = m ? IPLAY : IPAUSE; playB.setAttribute('aria-label', m ? 'Play the animation' : 'Pause the animation'); playB.title = m ? 'Play' : 'Pause'; }
+    const pick = i => { mode(true); if (live) show(i); else cur = i; };
+    dots.forEach((d, k) => d.addEventListener('click', () => pick(k)));
+    document.getElementById('mech-prev').addEventListener('click', () => pick(Math.max(0, cur - 1)));
+    document.getElementById('mech-next').addEventListener('click', () => pick(Math.min(STEPS.length - 1, cur + 1)));
+    playB.addEventListener('click', () => { if (manual) { mode(false); if (live) run(); } else pick(cur); });
+    mode(manual); if (reduce) cur = 2;
+    new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting && !live) { live = true; manual ? show(cur) : run(); } else if (!e.isIntersecting && live) { live = false; reset(); } }),
+      {rootMargin:'100px 0px'}).observe(mech);
   })();
 
   // ---------- 02 wheel ----------
@@ -850,7 +952,7 @@ footer{padding:70px 20px 50px}
   const kind = (obj, b) => NEWDIR.includes(b) ? 'dir' : obj === 'b' ? 'object' : TRAINED_A.includes(b) ? 'pair' : 'pairing';
   const LBL = {pair:'trained pair', pairing:'new pairing', object:'new object', dir:'new direction'};
   let obj = 'a';
-  const wheel = document.getElementById('wheelbox');
+  const wheel = document.getElementById('wheelbox'), gW = controls(wheel);
   function dial(){
     const s = el('svg', {class:'dial', viewBox:'0 0 100 100', 'aria-hidden':'true'}), r0 = 18, rw = 27.5, p = (a, r = r0) => [50 + r * Math.cos(rad(a)), 50 - r * Math.sin(rad(a))];
     const [x1, y1] = p(90, rw), [x2, y2] = p(150, rw), [x3, y3] = p(150), [x4, y4] = p(90);
@@ -860,6 +962,11 @@ footer{padding:70px 20px 50px}
     const [tx, ty] = p(120, 22.6); txt(s, tx, ty - .3, '90–150°', {'text-anchor':'middle'}); txt(s, tx, ty + 1.9, 'never trained', {'text-anchor':'middle'});
     return s;
   }
+  // The tiles are wider than tall, so on an evenly spaced ring the diagonal neighbours (30/60°, 120/150°, ...) touch while the
+  // axis neighbours sit far apart. These slot angles (solved for equal edge gaps, ~25 px at 880 px) move each diagonal tile a
+  // few degrees; its label and arrow still give the true direction.
+  const SLOT = {30:26.2, 60:61.8};
+  const slot = b => { const q = b % 180, r = q <= 90 ? q : 180 - q, a = SLOT[r] ?? r; return (q <= 90 ? a : 180 - a) + (b >= 180 ? 180 : 0); };
   function drawWheel(){
     wheel.replaceChildren(dial());
     const c = document.createElement('div'); c.className = 'center';
@@ -869,10 +976,10 @@ footer{padding:70px 20px 50px}
       const k = kind(obj, b), f = document.createElement('figure'); f.className = 'k-' + k; f.dataset.t = k;
       const [box, v] = tile(`static/videos/dir_${obj}_${pad3(b)}.mp4`, {arrow:b, s0:DEMO0}); vids.push(v);
       const cap = document.createElement('figcaption'); cap.innerHTML = `<span class="d">${b}°</span><span>${LBL[k]}</span>`;
-      f.append(box, cap); f.style.left = (50 + 41 * Math.cos(rad(b))) + '%'; f.style.top = (50 - 41 * Math.sin(rad(b))) + '%';
+      f.append(box, cap); const a = slot(b); f.style.left = (50 + 41 * Math.cos(rad(a))) + '%'; f.style.top = (50 - 41 * Math.sin(rad(a))) + '%';
       f.style.order = (90 - b + 360) % 360; wheel.append(f);
     });
-    sync(vids);
+    sync(vids); gW.clear(); vids.forEach(gW.add);
     document.querySelectorAll('#types > div').forEach(t => t.classList.toggle('off', !BEAR.some(b => kind(obj, b) === t.dataset.t)));
   }
   document.querySelectorAll('[data-obj]').forEach(b => b.addEventListener('click', () => { obj = b.dataset.obj; pressed('[data-obj]', b); drawWheel(); }));
@@ -884,23 +991,34 @@ footer{padding:70px 20px 50px}
   const SW = C.swap;
   let swObj = 'bread';
   const off = (a, b) => Math.abs(((a - b + 540) % 360) - 180);
+  const MORE = 'A second rollout of each condition, from another of the paper\'s evaluation initial states (the next one in each task\'s list, shared by every clip in this row), with the same demonstrations.';
+  const swapG = controls(document.getElementById('swapnote'), 'Second rollout of each');
+  function swapCap(arm, demo, land, ok, goal){
+    return arm === 'own' ? `<b>Own demos, ${demo}°</b><br>${ok ? 'success' : off(land, demo) + '° from the demos'}`
+      : arm === 'nodemo' ? `<b>No demos</b><br>the task asks for ${goal}°${ok ? ', success' : land == null ? '' : ', ' + off(land, goal) + '° off'}`
+      : `<b>Swapped to ${demo}°</b><br>${land == null ? 'did not move it' : off(land, demo) + '° from the swapped-in demos'}`;
+  }
+  function swapTile(S, arm, demo, land, ok, file){
+    return tile(`static/videos/${file}.mp4`, {tag:arm === 'nodemo' ? 'multi-task LoRA' : 'READ', res:land == null ? 'no move' : `lands at ${land}°`, ok,
+      arrow:arm === 'nodemo' ? S.goal : demo, dashed:arm !== 'own' && arm !== 'nodemo'});
+  }
   function drawSwap(){
-    const g = document.getElementById('swapgrid'), S = SW[swObj]; g.replaceChildren(); const vids = [];
-    S.cols.forEach(([arm, demo, land, ok]) => {
+    const g = document.getElementById('swapgrid'), S = SW[swObj]; g.replaceChildren(); const vids = []; swapG.clear();
+    const mg = document.createElement('div'); mg.className = 'row r5'; const mv = [];
+    S.cols.forEach(([arm, demo, land, ok, land2, ok2]) => {
       const f = document.createElement('figure'), st = document.createElement('div'); st.className = 'stack'; if (arm === 'nodemo') f.className = 'base';
-      if (demo != null) { const [db] = tile(`static/videos/swapdemo_${swObj}_${pad3(demo)}.mp4`, {tag:'1 of 5 demos', arrow:demo, s0:S.demo0 || DEMO0}); st.append(db); }
+      if (demo != null) { const [db, dv] = tile(`static/videos/swapdemo_${swObj}_${pad3(demo)}.mp4`, {tag:'1 of 5 demos', arrow:demo, s0:S.demo0 || DEMO0}); st.append(db); swapG.add(dv); }
       else { const ph = document.createElement('div'); ph.className = 'vbox'; ph.style.cssText = 'display:flex;align-items:center;justify-content:center;color:#cfcdc6;font-size:13px;text-align:center;padding:8px';
         ph.textContent = 'no demonstrations given'; st.append(ph); }
-      const [rb, rv] = tile(`static/videos/swap_${swObj}_${arm}.mp4`, {tag:arm === 'nodemo' ? 'multi-task LoRA' : 'READ', res:land == null ? 'no move' : `lands at ${land}°`, ok,
-        arrow:arm === 'nodemo' ? S.goal : demo, dashed:arm !== 'own' && arm !== 'nodemo'});
+      const [rb, rv] = swapTile(S, arm, demo, land, ok, `swap_${swObj}_${arm}`);
       vids.push(rv); st.append(rb);
-      const cap = document.createElement('figcaption');
-      cap.innerHTML = arm === 'own' ? `<b>Own demos, ${demo}°</b><br>${ok ? 'success' : off(land, demo) + '° from the demos'}`
-        : arm === 'nodemo' ? `<b>No demos</b><br>the task asks for ${S.goal}°${land == null ? '' : ', ' + off(land, S.goal) + '° off'}`
-        : `<b>Swapped to ${demo}°</b><br>${land == null ? 'did not move it' : off(land, demo) + '° from the swapped-in demos'}`;
+      const cap = document.createElement('figcaption'); cap.innerHTML = swapCap(arm, demo, land, ok, S.goal);
       f.append(st, cap); g.append(f);
+      const f2 = document.createElement('figure'), [b2, v2] = swapTile(S, arm, demo, land2, ok2, `swap_${swObj}_${arm}_2`), c2 = document.createElement('figcaption');
+      if (arm === 'nodemo') f2.className = 'base'; c2.innerHTML = swapCap(arm, demo, land2, ok2, S.goal); f2.append(b2, c2); mg.append(f2); mv.push(v2);
     });
-    sync(vids);
+    sync(vids); sync(mv); vids.concat(mv).forEach(swapG.add);
+    const mc = document.createElement('p'); mc.className = 'cap'; mc.textContent = MORE + (S.more ? ' ' + S.more : ''); swapG.panel.replaceChildren(mc, mg);
     document.getElementById('swapnote').textContent = 'Top: one of the five demonstrations given. Bottom: the rollout from the same initial state, 2× speed. ' + S.note;
   }
   document.querySelectorAll('[data-sw]').forEach(b => b.addEventListener('click', () => { swObj = b.dataset.sw; pressed('[data-sw]', b); drawSwap(); }));
@@ -908,27 +1026,43 @@ footer{padding:70px 20px 50px}
 
   // ---------- 04 coverage + beyond (videos) ----------
   (function(){
-    const vids = [];
+    const vids = [], mv = [], gC = controls(document.getElementById('covnote'), 'Second rollout of each'), mg = document.createElement('div'); mg.className = 'row r4';
+    const covFig = (k, file, name, land, ok, d, split) => { const f = document.createElement('figure');
+      const [b, v] = tile(`static/videos/cov_${k}_${file}.mp4`, {tag:'demos show 240°', res:land == null ? 'no move' : `lands at ${land}°`, ok, arrow:240});
+      const cap = document.createElement('figcaption'); cap.innerHTML = `<b>${split ? split + ' · ' : ''}${name}</b><br>${ok || k === 'shared' ? d : off(land, 240) + '° off'}`; f.append(b, cap); return [f, v]; };
     [['shared', 2, 'moves toward its trained 270°'], ['scattered', 3, 'follows the demonstrated goal']].forEach(([k, col, d]) => C.cov.forEach(row => {
-      const [name, file] = row, x = row[col], f = document.createElement('figure');
-      const [b, v] = tile(`static/videos/cov_${k}_${file}.mp4`, {tag:'demos show 240°', res:x[0] == null ? 'no move' : `lands at ${x[0]}°`, ok:x[1], arrow:240}); vids.push(v);
-      const cap = document.createElement('figcaption'); cap.innerHTML = `<b>${name}</b><br>${x[1] ? d : (k === 'shared' ? d : off(x[0], 240) + '° off')}`; f.append(b, cap); document.getElementById('cov-' + k).append(f);
+      const [name, file] = row, x = row[col];
+      const [f, v] = covFig(k, file, name, x[0], x[1], d); vids.push(v); document.getElementById('cov-' + k).append(f);
+      const [f2, v2] = covFig(k, file + '_2', name, x[2], x[3], d, k === 'shared' ? 'Shared' : 'Scattered'); mv.push(v2); mg.append(f2);
     }));
-    sync(vids);
+    sync(vids); sync(mv); vids.concat(mv).forEach(gC.add);
+    { const mc = document.createElement('p'); mc.className = 'cap'; mc.textContent = MORE + (C.covmore ? ' ' + C.covmore : ''); gC.panel.append(mc, mg); }
     document.getElementById('covnote').textContent = C.covnote;
     const dg = document.getElementById('datagrid');
     [['carry', 'Added carrying data', 'grasp the object and carry it, here toward 105°'], ['reach', 'Added reaching data', 'move the arm the same way without the object']].forEach(([k, t, d]) => {
       const f = document.createElement('figure'); const [b] = tile(`static/videos/data_${k}_105.mp4`, {tag:'training episode', arrow:105, s0:DEMO0});
       const cap = document.createElement('figcaption'); cap.innerHTML = `<b>${t}</b><br>${d}`; f.append(b, cap); dg.append(f); });
-    const bg = document.getElementById('beygrid'), bv = [];
-    C.bey.forEach(([k, t, land, ok, d]) => {
-      const f = document.createElement('figure');
-      const [b, v] = tile(`static/videos/beyond_${k}_120.mp4`, {tag:t, res:land == null ? 'no move' : `lands at ${land}°`, ok, arrow:120, target:120}); bv.push(v);
-      const cap = document.createElement('figcaption'); cap.innerHTML = `<b>${t}</b><br>${d}`; f.append(b, cap); bg.append(f);
+    const gD = controls(dg); dg.querySelectorAll('video').forEach(gD.add);
+    const bg = document.getElementById('beygrid'), bv = [], bm = [], gB = controls(bg, 'Second rollout of each'), mb = document.createElement('div'); mb.className = 'row r3';
+    const beyFig = (k, t, land, ok, d) => { const f = document.createElement('figure');
+      const [b, v] = tile(`static/videos/beyond_${k}.mp4`, {tag:t, res:land == null ? 'no move' : `lands at ${land}°`, ok, arrow:120, target:120});
+      const cap = document.createElement('figcaption'); cap.innerHTML = `<b>${t}</b><br>${d}`; f.append(b, cap); return [f, v]; };
+    C.bey.forEach(([k, t, land, ok, d, land2, ok2]) => {
+      const [f, v] = beyFig(`${k}_120`, t, land, ok, d); bv.push(v); bg.append(f);
+      const [f2, v2] = beyFig(`${k}_120_2`, t, land2, ok2, ok2 ? `${off(land2, 120)}° from the goal, completes the task` : land2 == null ? 'did not move it' : `${off(land2, 120)}° off`); bm.push(v2); mb.append(f2);
     });
-    sync(bv);
+    sync(bv); sync(bm); bv.concat(bm).forEach(gB.add);
+    { const mc = document.createElement('p'); mc.className = 'cap'; mc.textContent = MORE; gB.panel.append(mc, mb); }
     document.getElementById('beynote').textContent = C.beynote;
   })();
+
+  // ---------- 07 LIBERO-Gen task examples ----------
+  { const h = document.getElementById('libtasks'), g = controls(h);
+    [['table center', 'cookie box'], ['top drawer', 'plate'], ['next to cookie box', 'bowl next to ramekin'], ['next to plate', 'stove'],
+     ['on cookie box', 'bowl on cabinet'], ['on cookie box', 'cabinet'], ['on plate', 'bowl at table center'], ['on plate', 'table center'],
+     ['on stove', 'ramekin'], ['on cabinet', 'between plate and ramekin']].forEach(([a, b], t) => {
+      const f = document.createElement('figure'), [box, v] = tile(`static/videos/libero_demo_t${t}.mp4`, {tag:'T' + t, ratio:'1/1'});
+      const c = document.createElement('figcaption'); c.innerHTML = `${a} → <b>${b}</b>`; f.append(box, c); h.append(f); g.add(v); }); }
 
   // ---------- polar plots ----------
   const R = 100;
@@ -967,10 +1101,12 @@ footer{padding:70px 20px 50px}
     .forEach(([f, t, s]) => document.getElementById('g-train').append(fig(`static/videos/beh_train_${f}.mp4`, t, s === 'both' ? 'both sets' : 'broad set')));
   [['newdir','new direction'],['sequence','new sequence'],['tap','tap'],['drop','drop'],['shake','shake'],['circle','circle']]
     .forEach(([f, t]) => document.getElementById('g-held').append(fig(`static/videos/beh_held_${f}.mp4`, t)));
+  ['g-train', 'g-held'].forEach(id => { const h = document.getElementById(id), g = controls(h); h.querySelectorAll('video').forEach(g.add); });
   [['circle','Circle'],['drop','Drop'],['shake','Shake']].forEach(([k, t]) => {
     const f = document.createElement('figure'), st = document.createElement('div'); st.className = 'stack';
     const [a] = tile(`static/videos/beh_held_${k}.mp4`, {tag:'1 of 5 demos'}), [b] = tile(`static/videos/fail_${k}_broad.mp4`, {tag:'READ, broad set'});
     st.append(a, b); const c = document.createElement('figcaption'); c.innerHTML = `<b>${t}</b>`; f.append(st, c); document.getElementById('fails').append(f); });
+  { const h = document.getElementById('fails'), g = controls(h); h.querySelectorAll('video').forEach(g.add); }
   // ---------- sticky toc highlight ----------
   const links = [...document.querySelectorAll('#toc a')];
   const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) links.forEach(a => a.classList.toggle('on', a.getAttribute('href') === '#' + e.target.id)); }), {rootMargin:'-40% 0px -55% 0px'});
