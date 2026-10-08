@@ -144,7 +144,7 @@ section{padding-top:84px}
 .flow .enc{transition:stroke .3s,stroke-width .3s}
 .mech.p1 .flow .enc{stroke:var(--accent);stroke-width:2.6}
 .flow .bar{fill:var(--line2)}
-.step{font-family:Newsreader,Georgia,serif;font-size:22px;color:var(--ink);min-height:2.6em;margin-top:16px;transition:opacity .35s;display:flex;flex-direction:column;justify-content:flex-end}
+.step{font-family:Newsreader,Georgia,serif;font-size:22px;color:var(--ink);min-height:2.6em;margin-top:16px;transition:opacity .35s}
 /* diagram steps: plays and loops by itself until the reader picks a step, then stays where they put it */
 .mctl{display:flex;align-items:center;gap:4px;margin-top:18px}
 .dots{display:flex;gap:2px}
@@ -900,7 +900,7 @@ footer{padding:70px 20px 50px}
                    'The memory stays fixed; what the readers take from it changes with what the robot sees.'];
     const stepEl = document.getElementById('mech-step'), dots = [...document.querySelectorAll('#mech-dots button')], playB = document.getElementById('mech-play');
     const BANDS = [2, 9, 14, 5, 11, 16, 0, 7, 13, 3, 10, 15, 6, 12, 1, 8];
-    // Reserve the tallest step's height, text sitting on the controls, so the gap to them never changes between steps.
+    // Reserve the tallest step's height so the controls stay put between steps; shorter steps leave space below the text.
     function fitStep(){ const c = stepEl.cloneNode(); c.removeAttribute('id'); c.style.cssText = `position:absolute;visibility:hidden;min-height:0;width:${stepEl.clientWidth}px`;
       stepEl.parentElement.append(c); let m = 0; STEPS.forEach(t => { c.textContent = t; m = Math.max(m, c.offsetHeight); }); c.remove(); stepEl.style.minHeight = m + 'px'; }
     fitStep(); if (document.fonts) document.fonts.ready.then(fitStep);
