@@ -309,12 +309,36 @@ footer{padding:70px 20px 50px}
   .vctl .mb{padding:0 9px}
 }
 @media (prefers-reduced-motion:reduce){ html{scroll-behavior:auto} }
+
+.ncchart{margin:20px auto 6px}
+.ncleg{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:13px;color:var(--muted);margin-bottom:26px}
+.ncleg span{display:inline-flex;align-items:center;gap:6px}
+.ncleg i{display:inline-block;width:12px;height:12px;border-radius:2px}
+.ncleg i.br,.ncg i.br{background:var(--read)} .ncleg i.n,.ncg i.n{background:var(--nodemo)}
+.ncleg i.ref{width:18px;height:0;border-top:2px dashed var(--muted);border-radius:0}
+.ncplot{position:relative;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px;height:150px;border-bottom:1px solid var(--line2)}
+.ncg{display:flex;gap:3px;justify-content:center;align-items:flex-end;height:100%}
+.ncg.all{border-left:1px solid var(--rule);padding-left:6px}
+.ncg i{display:block;width:clamp(12px,2.6vw,24px);min-height:2px;position:relative;border-radius:2px 2px 0 0}
+.ncg i::after{content:attr(data-v);position:absolute;bottom:calc(100% + 3px);left:50%;transform:translateX(-50%);font:500 12px/1 Inter,sans-serif;color:var(--ink);white-space:nowrap}
+.ncref{position:absolute;left:0;right:0;border-top:2px dashed var(--muted);opacity:.7;pointer-events:none}
+.nclab{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px;margin-top:6px;font-size:13px;line-height:1.25;text-align:center;color:var(--ink)}
+.nclab .all{padding-left:6px}
+.ncchart.nc3 .ncg{gap:18px}
+.ncchart.nc3 .ncg i{width:clamp(30px,8vw,42px)}
+.nclab small{display:block;color:var(--muted);font-size:12px}
+.ncpair{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px}
+.ncpair .tag,.ncpair .res{font-size:11px}
+.ncpair .res{top:auto;bottom:6px;right:6px}
+@media (max-width:560px){.ncg i::after{font-size:10px}.nclab{font-size:11.5px}.ncplot,.nclab{gap:4px}}
+.hero{max-width:1116px}
+.wheel{max-width:min(880px,92vh)}
 </style>
 </head>
 <body>
 
 <nav class="toc" aria-label="Contents" id="toc">
-  <a href="#method">How READ reads</a><a href="#wheel">What demos can say</a><a href="#swap">Does it follow them?</a>
+  <a href="#method">How READ reads</a><a href="#wheel">What demos can say</a><a href="#swap">Does it follow them?</a><a href="#newclass">New object classes</a>
   <a href="#coverage">What training makes it work</a><a href="#behavior">Kinds of behavior</a><a href="#limits">Where it stops</a>
   <a href="#liberogen">vs. fine-tuning</a><a href="#paper">The paper in brief</a><a href="#qa">Questions</a>
 </nav>
@@ -331,7 +355,7 @@ footer{padding:70px 20px 50px}
   <p class="lead tldr"><b>TL;DR</b>Show a pretrained VLA (π<sub>0.5</sub>) five demonstrations of a new task, and it performs
     the task with no gradient step on it: the demonstrations are written once into a memory that the policy reads while it acts.
     On held-out LIBERO-Gen tasks, five demonstrations match per-task fine-tuning (92.8% vs 92.5%). Swap the demonstrations and
-    the robot moves the object the new way, even an object it never manipulated in training; scattering training directions
+    the robot moves the object the new way, even for <b>object classes it never manipulated in training</b> (68% across six new classes, 6% without demonstrations); scattering training directions
     across objects raises success on new object–direction pairings from 1% to 79%.</p>
 </header>
 
@@ -340,7 +364,7 @@ footer{padding:70px 20px 50px}
     aria-label="The same scene and instruction with four different sets of demonstrations; the robot moves the bread wherever the demonstrations show."></video>
 </div>
 <p class="prose cap">One scene, one instruction, <span class="instr">move the bread</span>. Only the five demonstrations change, and the
-  robot follows them. The bread was never manipulated in training. 2× speed.</p>
+  robot follows them. This bread was never manipulated in training; other breads were. 2× speed.</p>
 
 <!-- 1. method -->
 <section id="method">
@@ -383,7 +407,7 @@ footer{padding:70px 20px 50px}
         <tr><td>LIBERO-Gen</td><td>164 tasks: pick up a bowl from one place, put it in another</td>
           <td>10 new pairings of a pick-up place and a destination; each place appears in training, the pairing never does</td></tr>
         <tr><td>Direction suite</td><td>37 objects, each moved in 5 of 12 directions</td>
-          <td>an object moved in a direction trained only with other objects; objects never manipulated in training;
+          <td>an object moved in a direction trained only with other objects; new objects of trained classes; <b>six object classes never manipulated in training</b>;
             90–150°, trained with no object</td></tr>
         <tr><td>Behavior suite</td><td>37 objects with 3 (narrow set) or 8 (broad set) kinds of behavior</td>
           <td>trained behaviors on four new objects; six behaviors absent from both training sets</td></tr>
@@ -403,7 +427,7 @@ footer{padding:70px 20px 50px}
     <div class="tabs" role="group" aria-label="Object">
       <span class="hint">Show</span>
       <button type="button" data-obj="a" aria-pressed="true">A training object</button>
-      <button type="button" data-obj="b" aria-pressed="false">An object never manipulated in training</button>
+      <button type="button" data-obj="b" aria-pressed="false">A new object of a trained class</button>
       <button type="button" class="toggle" data-ov="toggle" aria-pressed="true">Goal arrows</button>
     </div>
   </div>
@@ -412,7 +436,7 @@ footer{padding:70px 20px 50px}
     <div class="legend4" id="types">
       <div class="k-pair" data-t="pair"><span class="v">81%</span><b>Trained pair</b>this object was trained in this direction</div>
       <div class="k-pairing" data-t="pairing"><span class="v">74%</span><b>New pairing</b>direction trained only with other objects</div>
-      <div class="k-object" data-t="object"><span class="v">78%</span><b>New object</b>never manipulated in training</div>
+      <div class="k-object" data-t="object"><span class="v">78%</span><b>New object</b>never manipulated in training; its object class was</div>
       <div class="k-dir" data-t="dir"><span class="v">13%</span><b>New direction</b>90–150°, the shaded sector: no training task of any object goes there</div>
     </div>
     <p class="cap">The outline of each clip marks which kind of test that direction is for this object; the numbers are READ's success on
@@ -468,10 +492,30 @@ footer{padding:70px 20px 50px}
   </div>
 </section>
 
+<!-- 4. new object classes -->
+<section id="newclass">
+  <div class="prose">
+    <span class="sec-n">04</span>
+    <h2>Object classes it never manipulated in training</h2>
+    <p>The 37 training objects of the Direction suite come from 11 object classes: mouse, stapler, bell, toy car, Rubik's cube,
+      bread, phone, deck of cards, soap, tea box and coffee box. Here the robot is asked to move objects from <b>six other
+      classes</b>, none of which it ever manipulated in training: a remote control, a can, a seal, a hamburger, a small speaker
+      and a sauce can. The instruction only names the object, <span class="instr">move the seal</span>; the five demonstrations
+      show which way it should go.</p>
+    <div class="ncchart" role="img" aria-label="Success on six object classes never manipulated in training: READ 59 to 79 percent, 68 percent overall; without demonstrations 5 to 8 percent, 6 percent overall; reference 77 percent on new objects of trained classes."><div class="ncleg"><span><i class="br"></i>READ</span><span><i class="n"></i>no demonstrations (multi-task LoRA)</span><span><i class="ref"></i>77%: new objects of trained classes</span></div><div class="ncplot" style="grid-template-columns:repeat(7,minmax(0,1fr))"><div class="ncref" style="bottom:76.9%"></div><div class="ncg"><i class="br" style="height:79.3%" data-v="79%"></i><i class="n" style="height:5.6%" data-v="6%"></i></div><div class="ncg"><i class="br" style="height:78.3%" data-v="78%"></i><i class="n" style="height:7.2%" data-v="7%"></i></div><div class="ncg"><i class="br" style="height:63.7%" data-v="64%"></i><i class="n" style="height:5.6%" data-v="6%"></i></div><div class="ncg"><i class="br" style="height:63.3%" data-v="63%"></i><i class="n" style="height:6.1%" data-v="6%"></i></div><div class="ncg"><i class="br" style="height:61.7%" data-v="62%"></i><i class="n" style="height:8.3%" data-v="8%"></i></div><div class="ncg"><i class="br" style="height:58.7%" data-v="59%"></i><i class="n" style="height:5.0%" data-v="5%"></i></div><div class="ncg all"><i class="br" style="height:67.5%" data-v="68%"></i><i class="n" style="height:6.3%" data-v="6%"></i></div></div><div class="nclab" style="grid-template-columns:repeat(7,minmax(0,1fr))"><div>remote control</div><div>small speaker</div><div>can</div><div>sauce can</div><div>hamburger</div><div>seal</div><div class="all"><b>All six</b></div></div></div>
+    <p class="cap">Success per new object class: two objects of each class, three directions, 50 test episodes each (300 per class;
+      1,800 in all). Grey: the same policy without demonstrations. Dashed line: READ on new objects of the 11 trained classes in the
+      same three directions.</p>
+  </div>
+  <div class="wide" style="max-width:940px"><div class="row r3" id="nc-gal"></div>
+    <p class="cap">Each pair: one of the five demonstrations, then READ on a test episode from another initial state (2× speed).
+      The arrow is the goal the demonstrations show, drawn for viewing only.</p></div>
+</section>
+
 <!-- 4. coverage -->
 <section id="coverage">
   <div class="prose">
-    <span class="sec-n">04</span>
+    <span class="sec-n">05</span>
     <h2>What in the training data makes this possible?</h2>
     <p>Two READ models train each of 37 objects in five directions, with nearly the same number of episodes (3,680 and 3,700).
       The <b>shared split</b> trains every object in the same five directions (30, 180, 210, 270 and 330°). The <b>scattered split</b>
@@ -506,7 +550,7 @@ footer{padding:70px 20px 50px}
         </div></div>
     </div>
     <p class="cap" style="text-align:center">Three training objects (a mouse, a bread and a coffee box) at 240° and 300°, every evaluation
-      episode (150 per plot). The shared model moves them toward its trained 270°. On three objects never manipulated in training,
+      episode (150 per plot). The shared model moves them toward its trained 270°. On three new objects of trained classes,
       the two models are close at directions both splits train (68% vs 78%) and far apart at these two (3% vs 78%).</p>
   </div>
 
@@ -546,20 +590,13 @@ footer{padding:70px 20px 50px}
 <!-- 5. behaviours -->
 <section id="behavior">
   <div class="prose">
-    <span class="sec-n">05</span>
+    <span class="sec-n">06</span>
     <h2>More kinds of behavior in training, more that demonstrations can teach</h2>
     <p>In our Behavior suite every task of an object again shares one instruction, <span class="instr">manipulate the bread</span>, and
       the demonstrations decide <i>how</i> to move it. Two READ models train on the same 37 objects: a narrow set (hold, translate,
       rotate) and a broad set that adds tilt, place, drag, push and sequences. The broad set has fewer episodes (3,088 vs 3,626),
       so it tests richer behavior coverage, not more data.</p>
-    <div class="bars">
-      <div class="lab">in both sets<small>translate, rotate</small></div>
-      <div class="b"><i class="n" style="width:calc(50% * .85)" data-v="50% narrow"></i><i class="br" style="width:calc(53% * .85)" data-v="53% broad"></i></div>
-      <div class="lab">only in the broad set<small>5 further kinds</small></div>
-      <div class="b"><i class="n" style="width:0" data-v="0% narrow"></i><i class="br" style="width:calc(38% * .85)" data-v="38% broad"></i></div>
-      <div class="lab">in neither set<small>6 held-out behaviors</small></div>
-      <div class="b"><i class="n" style="width:0" data-v="0/900"></i><i class="br" style="width:calc(2% * .85)" data-v="17/900"></i></div>
-    </div>
+    <div class="ncchart nc3" style="max-width:560px" role="img" aria-label="Behavior suite success: behaviors in both training sets 50 percent narrow, 53 percent broad; only in the broad set 0 and 38 percent; in neither set 0 of 900 and 17 of 900."><div class="ncleg"><span><i class="n"></i>narrow set</span><span><i class="br"></i>broad set</span></div><div class="ncplot" style="grid-template-columns:repeat(3,minmax(0,1fr))"><div class="ncg"><i class="n" style="height:50%" data-v="50%"></i><i class="br" style="height:53%" data-v="53%"></i></div><div class="ncg"><i class="n" style="height:0%" data-v="0%"></i><i class="br" style="height:38%" data-v="38%"></i></div><div class="ncg"><i class="n" style="height:0%" data-v="0/900"></i><i class="br" style="height:1.9%" data-v="17/900"></i></div></div><div class="nclab" style="grid-template-columns:repeat(3,minmax(0,1fr))"><div>in both sets<small>translate, rotate</small></div><div>only in the broad set<small>5 further kinds</small></div><div>in neither set<small>6 held-out behaviors</small></div></div></div>
   </div>
   <div class="wide" style="margin-top:26px">
     <p class="cap" style="margin:0 0 8px">Behaviors in training (expert demonstrations)</p>
@@ -572,7 +609,7 @@ footer{padding:70px 20px 50px}
 <!-- 6. limits -->
 <section id="limits">
   <div class="prose">
-    <span class="sec-n">06</span>
+    <span class="sec-n">07</span>
     <h2>Where it stops</h2>
     <p>Shown circling, dropping or shaking, the broad-set model picks the object up and falls back to behaviors it was trained on.
       Scattering directions across objects and adding behavior kinds both widened what demonstrations could teach; these failures
@@ -586,7 +623,7 @@ footer{padding:70px 20px 50px}
 <!-- 7. LIBERO-Gen -->
 <section id="liberogen">
   <div class="prose">
-    <span class="sec-n">07</span>
+    <span class="sec-n">08</span>
     <h2>Five demonstrations match per-task fine-tuning</h2>
     <p>On ten held-out LIBERO-Gen tasks, which pair familiar pick-up places and destinations in new ways, READ reaches 92.8% from
       five demonstrations; a LoRA fine-tuned on each task with all 36–49 of its demonstrations reaches 92.5%. The scene has two
@@ -624,7 +661,7 @@ footer{padding:70px 20px 50px}
 <!-- 8. the paper in brief -->
 <section id="paper">
   <div class="prose">
-    <span class="sec-n">08</span>
+    <span class="sec-n">09</span>
     <h2>The paper in brief</h2>
     <p class="abstract">Teaching a pretrained robot policy a new task usually requires another fine-tuning run. We introduce READ, which instead
       adapts a vision-language-action (VLA) policy from five demonstrations without updating its parameters. A learned encoder turns
@@ -641,7 +678,7 @@ footer{padding:70px 20px 50px}
         for fine-tuning on all available demonstrations. Swapping the demonstrations lowers READ's success more than that of a
         baseline that converts them into weights.</div>
       <div><b>Demonstrations teach familiar movements with new objects.</b>A movement learned with some objects can be demonstrated
-        with others, including objects never manipulated in training.</div>
+        with others, including new objects and six object classes never manipulated in training.</div>
       <div><b>Changing the training tasks changes what demonstrations can teach.</b>Showing a wider range of movement goals with
         nearly the same data raises success on new pairings of trained objects and goals from 1% to 79%. Six behaviors absent
         from both training sets remain out of reach.</div>
@@ -683,7 +720,7 @@ footer{padding:70px 20px 50px}
       <tbody>
         <tr><td>Trained pair<small>object trained in this direction</small></td><td class="num">81%</td><td class="num">81%</td><td class="num">0%</td><td class="num">11%</td></tr>
         <tr><td>New pairing<small>direction trained with other objects only</small></td><td class="num">74%</td><td class="num">74%</td><td class="num">&lt;1%</td><td class="num">5%</td></tr>
-        <tr><td>New object<small>never manipulated in training</small></td><td class="num">78%</td><td class="num">79%</td><td class="num">&lt;1%</td><td class="num">7%</td></tr>
+        <tr><td>New object<small>never manipulated in training; trained class</small></td><td class="num">78%</td><td class="num">79%</td><td class="num">&lt;1%</td><td class="num">7%</td></tr>
         <tr><td>New direction<small>90–150°, never trained</small></td><td class="num">13%</td><td class="num">88%</td><td class="num">0%</td><td class="num">0%</td></tr>
       </tbody></table></div>
     <p class="cap">Scattered-split model. Swap controls replace the demonstrations with three trained directions of the same object.
@@ -730,7 +767,7 @@ footer{padding:70px 20px 50px}
 <!-- 9. Q&A -->
 <section id="qa">
   <div class="prose qa">
-    <span class="sec-n">09</span>
+    <span class="sec-n">10</span>
     <h2>Questions</h2>
     <details><summary>How does this differ from fine-tuning on the new task?</summary>
       <p>No parameter changes on the new task. Five demonstrations are encoded once into a cached memory, and the policy acts.
@@ -748,9 +785,9 @@ footer{padding:70px 20px 50px}
       <p>One encoder pass per task, cached as 0.2 MiB of memory tokens. Each action chunk takes 5.7% longer than the base policy on
         one L40S (LIBERO-Gen, 100-token memory); the readers query a small cached memory and video is never re-encoded during rollouts.</p></details>
     <details><summary>Can it learn completely new behaviors from demonstrations?</summary>
-      <p>Not yet at our data scale. Demonstrations teach trained movements with new objects and in new object–direction pairings, and small changes in
+      <p>Not yet at our data scale. Demonstrations teach trained movements with new objects, including object classes never manipulated in training, and in new object–direction pairings, and small changes in
         translation distance, direction and rotation angle, but six behaviors absent from both training sets stay near zero
-        (section 06). Scattering directions across objects and adding behavior kinds both widened what could be taught, which is
+        (section 07). Scattering directions across objects and adding behavior kinds both widened what could be taught, which is
         why we read these results as a guide for where to add training data.</p></details>
     </div>
 </section>
@@ -970,7 +1007,7 @@ footer{padding:70px 20px 50px}
   function drawWheel(){
     wheel.replaceChildren(dial());
     const c = document.createElement('div'); c.className = 'center';
-    c.innerHTML = `<span class="instr">move the bread</span><br>${obj === 'a' ? 'a training object' : 'never manipulated in training'}`;
+    c.innerHTML = `<span class="instr">move the bread</span><br>${obj === 'a' ? 'a training object' : 'new object of a trained class'}`;
     wheel.append(c); const vids = [];
     BEAR.forEach(b => {
       const k = kind(obj, b), f = document.createElement('figure'); f.className = 'k-' + k; f.dataset.t = k;
@@ -1107,6 +1144,17 @@ footer{padding:70px 20px 50px}
     const [a] = tile(`static/videos/beh_held_${k}.mp4`, {tag:'1 of 5 demos'}), [b] = tile(`static/videos/fail_${k}_broad.mp4`, {tag:'READ, broad set'});
     st.append(a, b); const c = document.createElement('figcaption'); c.innerHTML = `<b>${t}</b>`; f.append(st, c); document.getElementById('fails').append(f); });
   { const h = document.getElementById('fails'), g = controls(h); h.querySelectorAll('video').forEach(g.add); }
+  // ---------- new object classes ----------
+  { const NC = [{"slug": "remote", "name": "remote control", "bearing": 210, "demo_s0": [235.9, 163.6], "read_s0": [220.1, 153.3], "land": 208, "ok": true, "read": "nc_remote_read", "seed_index": 0, "nd_land": 341, "nd_ok": false}, {"slug": "can", "name": "can", "bearing": 0, "demo_s0": [239.3, 153.4], "read_s0": [222.8, 142.8], "land": 0, "ok": true, "read": "nc_can_read", "seed_index": 0, "nd_land": 282, "nd_ok": false}, {"slug": "seal", "name": "seal", "bearing": 270, "demo_s0": [230.4, 152.3], "read_s0": [222.0, 145.6], "land": 263, "ok": true, "read": "nc_seal_read", "seed_index": 0, "nd_land": 321, "nd_ok": false}, {"slug": "hamburg", "name": "hamburger", "bearing": 0, "demo_s0": [228.3, 159.3], "read_s0": [220.5, 175.3], "land": 355, "ok": true, "read": "nc_hamburg_read_b", "seed_index": 1, "nd_land": 49, "nd_ok": false}, {"slug": "speaker", "name": "small speaker", "bearing": 210, "demo_s0": [229.3, 155.9], "read_s0": [221.1, 149.2], "land": 211, "ok": true, "read": "nc_speaker_read", "seed_index": 0, "nd_land": 79, "nd_ok": false}, {"slug": "saucecan", "name": "sauce can", "bearing": 270, "demo_s0": [223.3, 161.8], "read_s0": [224.0, 163.5], "land": 274, "ok": true, "read": "nc_saucecan_read_b", "seed_index": 1, "nd_land": 356, "nd_ok": false}];
+    const h = document.getElementById('nc-gal');
+    NC.forEach(c => { const f = document.createElement('figure'), st = document.createElement('div'); st.className = 'stack';
+      const [a] = tile(`static/videos/nc_${c.slug}_demo.mp4`, {tag:'1 of 5 demos', arrow:c.bearing, s0:c.demo_s0});
+      const [b] = tile(`static/videos/${c.read}.mp4`, {tag:'READ', arrow:c.bearing, s0:c.read_s0,
+        res:c.land == null ? 'no move' : `lands at ${c.land}°`, ok:c.ok});
+      st.append(a, b); const cap = document.createElement('figcaption');
+      cap.innerHTML = `<b>${c.name}</b> · never manipulated in training`;
+      f.append(st, cap); h.append(f); });
+    const g = controls(h); h.querySelectorAll('video').forEach(g.add); }
   // ---------- sticky toc highlight ----------
   const links = [...document.querySelectorAll('#toc a')];
   const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) links.forEach(a => a.classList.toggle('on', a.getAttribute('href') === '#' + e.target.id)); }), {rootMargin:'-40% 0px -55% 0px'});
