@@ -4,9 +4,6 @@
 <meta charset="utf-8">
 <link rel="icon" href="data:,">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- Anonymous review page: keep noindex until the de-anonymised version replaces it. -->
-<meta name="robots" content="noindex, nofollow">
-<meta name="referrer" content="no-referrer">
 <title>READ: Teaching a VLA by Demonstration</title>
 <meta name="description" content="READ adapts a pretrained vision-language-action policy from five demonstrations without updating its parameters.">
 <link rel="preload" as="font" type="font/woff2" href="static/fonts/inter-latin.woff2" crossorigin>
@@ -351,7 +348,7 @@ footer{padding:70px 20px 50px}
 <main>
 <header class="prose">
   <h1>READ: What Makes a Pretrained VLA Teachable by Demonstration?</h1>
-  <div class="meta"><span>Authors</span><span>Anonymous</span><span>Status</span><span>Under double-blind review</span><span>Policy</span><span>π<sub>0.5</sub> (pretrained)</span></div>
+  <div class="meta"><span>Authors</span><span><a href="https://jaywu109.github.io/">Dai-Jie Wu</a>, <a href="https://minhphd.github.io/">Minh Pham-Dinh</a>, <a href="https://kennethmarino.com/">Kenneth Marino</a></span><span>Affiliation</span><span><a href="https://sparklabutah.github.io/">SPARK Lab</a>, University of Utah</span><span>Venue</span><span>CoRL 2026 workshops: <a href="https://corl2026-robotcl.github.io/">Pretrain to Adapt</a> · <a href="https://corl2026-memory.github.io/">RoboMem</a></span></div>
   <p class="lead tldr"><b>TL;DR</b>Show a pretrained VLA (π<sub>0.5</sub>) five demonstrations of a new task, and it performs
     the task with no gradient step on it: the demonstrations are written once into a memory that the policy reads while it acts.
     On held-out LIBERO-Gen tasks, five demonstrations match per-task fine-tuning (92.8% vs 92.5%). Swap the demonstrations and
